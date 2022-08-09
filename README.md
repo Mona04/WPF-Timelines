@@ -1,6 +1,6 @@
 # Timeline
 
-https://www.codeproject.com/Articles/240411/WPF-Timeline-Control-Part-I
+This is a modified version of [DannyStaten](https://www.codeproject.com/Articles/240411/WPF-Timeline-Control-Part-I)'s Timeline Control for my purpose.
 
 ## 변경사항
 
