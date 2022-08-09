@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:tt="clr-namespace:TimeLineTool;assembly=TimeLineTool"
         xmlns:local="clr-namespace:TimeLineTestApp"
-        xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
+        xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=TimeLineTool"
         Title="MainWindow"
         Height="700"
         Width="1024">

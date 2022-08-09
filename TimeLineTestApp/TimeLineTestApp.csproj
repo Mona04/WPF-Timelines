@@ -94,10 +94,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\gong-wpf-dragdrop\GongSolutions.Wpf.DragDrop\GongSolutions.Wpf.DragDrop.csproj">
-      <Project>{0C6674CC-6D49-414A-9B41-D4E175028FFB}</Project>
-      <Name>GongSolutions.Wpf.DragDrop</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TimeLineTool\TimeLineTool.csproj">
       <Project>{7439A26A-46E1-42A0-9D58-2E38289675F6}</Project>
       <Name>TimeLineTool</Name>
