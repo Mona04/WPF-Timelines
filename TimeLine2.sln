@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32413.511
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeLineTool", "TimeLineTool\TimeLineTool.csproj", "{7439A26A-46E1-42A0-9D58-2E38289675F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeLineTestApp", "TimeLineTestApp\TimeLineTestApp.csproj", "{F73C087D-704F-408F-9526-C2487D97F632}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GongSolutions.Wpf.DragDrop", "gong-wpf-dragdrop\GongSolutions.Wpf.DragDrop\GongSolutions.Wpf.DragDrop.csproj", "{0C6674CC-6D49-414A-9B41-D4E175028FFB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7439A26A-46E1-42A0-9D58-2E38289675F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7439A26A-46E1-42A0-9D58-2E38289675F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7439A26A-46E1-42A0-9D58-2E38289675F6}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{7439A26A-46E1-42A0-9D58-2E38289675F6}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{7439A26A-46E1-42A0-9D58-2E38289675F6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7439A26A-46E1-42A0-9D58-2E38289675F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7439A26A-46E1-42A0-9D58-2E38289675F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7439A26A-46E1-42A0-9D58-2E38289675F6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{7439A26A-46E1-42A0-9D58-2E38289675F6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{7439A26A-46E1-42A0-9D58-2E38289675F6}.Release|x86.ActiveCfg = Release|Any CPU
+		{F73C087D-704F-408F-9526-C2487D97F632}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{F73C087D-704F-408F-9526-C2487D97F632}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{F73C087D-704F-408F-9526-C2487D97F632}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{F73C087D-704F-408F-9526-C2487D97F632}.Debug|x86.ActiveCfg = Debug|x86
+		{F73C087D-704F-408F-9526-C2487D97F632}.Debug|x86.Build.0 = Debug|x86
+		{F73C087D-704F-408F-9526-C2487D97F632}.Release|Any CPU.ActiveCfg = Release|x86
+		{F73C087D-704F-408F-9526-C2487D97F632}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{F73C087D-704F-408F-9526-C2487D97F632}.Release|Mixed Platforms.Build.0 = Release|x86
+		{F73C087D-704F-408F-9526-C2487D97F632}.Release|x86.ActiveCfg = Release|x86
+		{F73C087D-704F-408F-9526-C2487D97F632}.Release|x86.Build.0 = Release|x86
+		{0C6674CC-6D49-414A-9B41-D4E175028FFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C6674CC-6D49-414A-9B41-D4E175028FFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C6674CC-6D49-414A-9B41-D4E175028FFB}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{0C6674CC-6D49-414A-9B41-D4E175028FFB}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{0C6674CC-6D49-414A-9B41-D4E175028FFB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0C6674CC-6D49-414A-9B41-D4E175028FFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C6674CC-6D49-414A-9B41-D4E175028FFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C6674CC-6D49-414A-9B41-D4E175028FFB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{0C6674CC-6D49-414A-9B41-D4E175028FFB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{0C6674CC-6D49-414A-9B41-D4E175028FFB}.Release|x86.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9459ADB3-74E4-4ADC-901E-3E2C6148EA81}
+	EndGlobalSection
+EndGlobal

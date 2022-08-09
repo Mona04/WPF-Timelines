@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GongSolutions.Wpf.DragDrop", "GongSolutions.Wpf.DragDrop\GongSolutions.Wpf.DragDrop.csproj", "{0C6674CC-6D49-414A-9B41-D4E175028FFB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchoolsExample", "Examples\SchoolsExample\SchoolsExample.csproj", "{F2C9DCF4-9C94-4389-9532-E9E7D0412C01}"
+EndProject
+Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = GongSolutions.Wpf.DragDrop.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0C6674CC-6D49-414A-9B41-D4E175028FFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C6674CC-6D49-414A-9B41-D4E175028FFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C6674CC-6D49-414A-9B41-D4E175028FFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C6674CC-6D49-414A-9B41-D4E175028FFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2C9DCF4-9C94-4389-9532-E9E7D0412C01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2C9DCF4-9C94-4389-9532-E9E7D0412C01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2C9DCF4-9C94-4389-9532-E9E7D0412C01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2C9DCF4-9C94-4389-9532-E9E7D0412C01}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

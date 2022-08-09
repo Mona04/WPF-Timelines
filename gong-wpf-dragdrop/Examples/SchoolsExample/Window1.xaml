@@ -1,0 +1,23 @@
+﻿<Window x:Class="SchoolsExample.Window1"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
+    xmlns:local="clr-namespace:SchoolsExample"
+    Title="Gong Solutions Drag'n'Drop: Schools Example" Height="222" Width="459">
+    
+    <Window.DataContext>
+        <local:MainViewModel/>
+    </Window.DataContext>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        
+        <ListBox Grid.Column="0" ItemsSource="{Binding Schools}" DisplayMemberPath="Name" IsSynchronizedWithCurrentItem="True"
+                 dd:DragDrop.IsDropTarget="True" dd:DragDrop.DropHandler="{Binding}"/>
+        <ListBox Grid.Column="1" ItemsSource="{Binding Schools.CurrentItem.Pupils}" DisplayMemberPath="FullName"
+                 dd:DragDrop.IsDragSource="True" dd:DragDrop.IsDropTarget="True"/>
+    </Grid>
+</Window>
