@@ -9,7 +9,7 @@ using System.Windows.Media;
 using System.Windows.Data;
 using System.Windows.Input;
 
-namespace TimeLineTool
+namespace TimeLines
 {
 	//public class TimeLineItemControl:ContentPresenter
 	public class TimeLineItemControl : Button
@@ -83,7 +83,7 @@ namespace TimeLineTool
 		// Using a DependencyProperty as the backing store for TimeLineStartTime.  This enables animation, styling, binding, etc...
 		public static readonly DependencyProperty TimeLineStartTimeProperty =
 			DependencyProperty.Register("TimeLineStartTime", typeof(TimeSpan), typeof(TimeLineItemControl),
-			new UIPropertyMetadata(TimeSpan.MinValue,
+			new UIPropertyMetadata(TimeSpan.Zero,
 				new PropertyChangedCallback(OnTimeValueChanged)));
 		#endregion
 
@@ -110,7 +110,7 @@ namespace TimeLineTool
 		// Using a DependencyProperty as the backing store for StartTime.  This enables animation, styling, binding, etc...
 		public static readonly DependencyProperty StartTimeProperty =
 			DependencyProperty.Register("StartTime", typeof(TimeSpan), typeof(TimeLineItemControl),
-			new UIPropertyMetadata(TimeSpan.MinValue,
+			new UIPropertyMetadata(TimeSpan.FromSeconds(0),
 				new PropertyChangedCallback(OnTimeValueChanged)));
 
 
@@ -163,11 +163,12 @@ namespace TimeLineTool
 				Canvas.SetLeft(this, p);
 			}
 		}
-
 		protected override void OnInitialized(EventArgs e)
 		{
 			base.OnInitialized(e);
 
+			// disable auto scroll when focused
+			RequestBringIntoView += (s, ee) => { ee.Handled = true; };
 		}
         private ContentPresenter _LeftIndicator;
         private ContentPresenter _RightIndicator;
@@ -180,9 +181,7 @@ namespace TimeLineTool
             if (_RightIndicator != null)
                 _RightIndicator.Visibility = System.Windows.Visibility.Collapsed;
             base.OnApplyTemplate();
-        }
-		
-		
+        }		
 		internal Double CalculateWidth()
 		{	
 			try
@@ -197,7 +196,6 @@ namespace TimeLineTool
 				return 0;
 			}		
 		}
-
 		internal Double CalculateLeftPosition()
 		{
 			TimeSpan start = (TimeSpan)GetValue(StartTimeProperty);
@@ -217,25 +215,24 @@ namespace TimeLineTool
                 _RightIndicator.Visibility = right;
             }
         }
-        
+
+        #region MouseEvents
         protected override void OnMouseMove(MouseEventArgs e)
-        {            
+        {
             switch (GetClickAction())
-            {
-                
+            {                
                 case TimeLineAction.StretchStart:
                     SetIndicators(System.Windows.Visibility.Visible, System.Windows.Visibility.Collapsed);
                     break;
                 case TimeLineAction.StretchEnd:
                     SetIndicators(System.Windows.Visibility.Collapsed, System.Windows.Visibility.Visible);
-                    //this.Cursor = Cursors.SizeWE;//Cursors.Hand;//Cursors.ScrollWE;
+                    //curso = Cursors.SizeWE;//Cursors.Hand;//Cursors.ScrollWE;
                     break;
                 default:
                     SetIndicators(System.Windows.Visibility.Collapsed, System.Windows.Visibility.Collapsed);
                     break;
             }
         }
-
         protected override void OnMouseLeave(MouseEventArgs e)
         {
             SetIndicators(System.Windows.Visibility.Collapsed, System.Windows.Visibility.Collapsed);
@@ -245,9 +242,10 @@ namespace TimeLineTool
             }
             base.OnMouseLeave(e);
         }
+        #endregion
 
-		#region manipulation tools
-		internal TimeLineAction GetClickAction()
+        #region manipulation tools
+        internal TimeLineAction GetClickAction()
 		{	
 			var X = Mouse.GetPosition(this).X;
             Double borderThreshold = (Double)GetValue(EditBorderThresholdProperty);// 4;
@@ -262,8 +260,7 @@ namespace TimeLineTool
 		}
 		
 		internal bool CanDelta(int StartOrEnd, Double deltaX)
-		{
-			
+		{			
 			Double unitS = (Double)GetValue(UnitSizeProperty);
 			Double threshold = unitS / 3.0;
 			Double newW = unitS;
@@ -307,26 +304,16 @@ namespace TimeLineTool
 
 		internal void MoveMe(Double deltaX)
 		{
-			var left = Canvas.GetLeft(this);
-			left += deltaX;
-			if (left < 0)
-				left = 0;
-	
-			TimeSpan startTs = TimeLineUtils.ConvertDistanceToTime(left, ViewLevel, UnitSize);
-			TimeSpan tlStart = TimeLineStartTime;
-			TimeSpan s = StartTime;
-			TimeSpan e = EndTime;
-			TimeSpan duration = e.Subtract(s);
+			TimeSpan DeltaTime = TimeLineUtils.ConvertDistanceToTime(deltaX, ViewLevel, UnitSize);
 
-			if (tlStart + startTs + duration >= TimelineMaxTime)
-				return;
+			if (StartTime + DeltaTime < TimeLineStartTime)
+				DeltaTime = TimeLineStartTime - StartTime;
+			if (EndTime + DeltaTime > TimelineMaxTime)
+				DeltaTime = EndTime - TimelineMaxTime;
 
-			Canvas.SetLeft(this, left);
-			StartTime = tlStart.Add(startTs);
-			EndTime = StartTime.Add(duration);
-			
+			StartTime += DeltaTime;
+			EndTime += DeltaTime;
 		}
-		#endregion
 
 		internal void MoveEndTime(double delta)
 		{
@@ -369,6 +356,8 @@ namespace TimeLineTool
 			PlaceOnCanvas();
 			 
 		}
+		#endregion
+		
 		/// <summary>
 		/// Sets up with a default of 55 of our current units in size.
 		/// </summary>

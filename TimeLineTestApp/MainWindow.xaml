@@ -1,148 +1,61 @@
 ﻿<Window x:Class="TimeLineTestApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:tt="clr-namespace:TimeLineTool;assembly=TimeLineTool"
+        xmlns:tt="clr-namespace:TimeLines;assembly=Timelines"
         xmlns:local="clr-namespace:TimeLineTestApp"
-        xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=TimeLineTool"
         Title="MainWindow"
         Height="700"
         Width="1024">
-    <Window.Resources>
-        <Color R="255"
-               G="255"
-               B="255"
-               A="180"
-               x:Key="BgColor" />
-        <SolidColorBrush Color="{StaticResource BgColor}"
-                         x:Key="BgBrush" />
-        <Style TargetType="{x:Type tt:TimeLineItemControl}">
-            <Setter Property="EditBorderThreshold" Value="10"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type tt:TimeLineItemControl}">
-                        <Grid>
-                            <Border Background="Blue"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
-                                    Opacity="0" />
-                            <ContentPresenter HorizontalAlignment="Stretch"
-                                              VerticalAlignment="Stretch"
-                                              x:Name="PART_ContentHostPART_ContentHost" />
-                            <ContentPresenter HorizontalAlignment="Left"
-                                              VerticalAlignment="Stretch"
-                                              x:Name="PART_LeftIndicator">
-                                <ContentPresenter.Content>
-                                    <Button Width="10"/>
-                                </ContentPresenter.Content>
-
-                            </ContentPresenter>
-                            <ContentPresenter HorizontalAlignment="Right"
-                                              VerticalAlignment="Stretch"
-                                              x:Name="PART_RightIndicator">
-                                <ContentPresenter.Content>
-                                    <Button Width="10" />
-                                </ContentPresenter.Content>
-
-                            </ContentPresenter>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <DataTemplate  DataType="{x:Type local:TempDataType}">
-            <Border BorderThickness="1"
-                    BorderBrush="Blue"
-                    CornerRadius="3"
-                    Height="30">
-                <TextBlock Text="{Binding Path=Name}" />
-            </Border>
-        </DataTemplate>
-        <DataTemplate  DataType="{x:Type local:TempDataType}"
-                       x:Key="UsedTemplateProperty">
-            <Border BorderThickness="1"
-                    BorderBrush="Green"
-                    CornerRadius="3"
-                    Margin="0,10,0,10"
-                    Height="60"
-                    Background="{StaticResource BgBrush}">
-                <StackPanel Orientation="Vertical">
-                    <TextBlock Text="{Binding Path=Name}" />
-                    <TextBlock Text="{Binding Path=StartTime}" />
-                    <TextBlock Text="{Binding Path=EndTime}" />
-                </StackPanel>
-            </Border>
-        </DataTemplate>
-    </Window.Resources>
-    <StackPanel VerticalAlignment="Stretch"
-                Orientation="Vertical">
+    <StackPanel VerticalAlignment="Stretch" Orientation="Vertical">
         <GroupBox Header="Timelines">
             <StackPanel Orientation="Vertical">
                 <TextBlock Text="Right click and drag to edit items.  Left Edge - moves start time.  Right Edge - moves end time." />
                 <TextBlock Text="If you are moving the scene you will push other scenes when you run into them." />
-                <TextBlock Text="If you are editing an edge, it will stop when you run into a neighbor scene.  Hold ctrl to link to a touching edge and move them together." />
                 <TextBlock Text="You can drag and drop with left click to change order or move from one timeline to the next." />
-                <GroupBox Header="Single Time Line Thread">
-
-                    <StackPanel Orientation="Vertical">
-                        <ScrollViewer HorizontalAlignment="Stretch"
-                                      HorizontalScrollBarVisibility="Auto"
-                                      VerticalScrollBarVisibility="Auto"
-                                      VerticalAlignment="Stretch"
-                                      PreviewMouseWheel="FoundMe_MouseWheel"
-                                      x:Name="FoundMe">
-                            <StackPanel Orientation="Vertical">
-                                <!--You can bind to many properties including Items.  So long as the collection bound contains
-                                    implementations of the ITimelineDataItem, the control will manage it perfectly.
-                                    
-                                    If you implement the ITimelineManager class, then you can use that manager to disable or enable the timelines.
-                                    
-                                    If your timelines are within an items control then SynchedWithSiblings is a property that will keep all sibling timelines the same width
-                                    -->
-                                <ItemsControl>
-                                    <tt:TimeLineControl Height="80"
-                                                        ItemTemplate="{StaticResource UsedTemplateProperty}"
-                                                        HorizontalAlignment="Left"
-                                                        x:Name="TimeLine2"
-                                                        UnitSize="20"
-                                                        MinimumUnitWidth="20"
-                                                        Background="Gray"
-                                                        DrawTimeGrid="True"
-                                                        MinWidth="50"
-                                                        SynchedWithSiblings="True" TextBlock.Foreground="White" />
-                                    <tt:TimeLineControl Height="80"
-                                                        ItemTemplate="{StaticResource UsedTemplateProperty}"
-                                                        HorizontalAlignment="Left"
-                                                        x:Name="TimeLine3"
-                                                        UnitSize="20"
-                                                        MinimumUnitWidth="20"
-                                                        Background="Azure"
-                                                        DrawTimeGrid="True"
-                                                        MinWidth="50"
-                                                        SynchedWithSiblings="True" />
-                                </ItemsControl>
-                            </StackPanel>
-                        </ScrollViewer>
-
+                <TextBlock Text="If you are want to magnify/reduce time unit then wheel your mouse while pressing left ctrl" />
+                <GroupBox Header="Timelines Example">
+                    <StackPanel>
+                        <tt:Timelines x:Name="Timelines" Height="150" CurrentTime="00:00:01">
+                            <tt:Timelines.ItemTemplate>
+                                <HierarchicalDataTemplate DataType="{x:Type local:TempDatas}" ItemsSource="{Binding Childs}">
+                                    <Grid >
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType=tt:Timelines}, Path=HeaderWidth}"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Margin="10, 0, 0, 1">
+                                            <TextBlock Grid.Column="0" FontSize="13" Padding="5" Text="{Binding ChannelName}"
+                                                        Foreground="White" Background="#333333" HorizontalAlignment="Stretch"/>
+                                        </Border>
+                                    </Grid>
+                                </HierarchicalDataTemplate>
+                            </tt:Timelines.ItemTemplate>
+                            <tt:Timelines.TimeItemTemplate>
+                                <DataTemplate  DataType="{x:Type local:TempDataType}" >
+                                    <Border BorderThickness="1" BorderBrush="Green"  CornerRadius="4"  Margin="0,2"  Background="#77FFFFFF">
+                                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding Path=Name}" />
+                                            <TextBlock Text="{Binding Path=StartTime}" />
+                                            <TextBlock Text="{Binding Path=EndTime}" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </tt:Timelines.TimeItemTemplate>
+                            <tt:Timelines.TimePlayerTemplate>
+                                <ControlTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Content="Play"/>
+                                        <Button Content="Stop"/>
+                                    </StackPanel>
+                                </ControlTemplate>
+                            </tt:Timelines.TimePlayerTemplate>
+                        </tt:Timelines>
                     </StackPanel>
-
                 </GroupBox>
-                <TextBlock Text="Zoom Slider:" />
-                <Slider x:Name="Slider_Scale"
-                        Minimum="0.1"
-                        Maximum="10"
-                        ValueChanged="Slider_Scale_ValueChanged" />
-                <TextBlock Text="Additional items you can drag in:" />
-                <!--NOTE: in a more robust implementation you would have drag drop actions that happen in a parent viewmodel that will
-                intelligently remove the items from the your source.  It is known in this case that you will create bugs if you drop the same item
-                into multiple timelines etc.-->
-                <TextBlock Width="900"
-                           HorizontalAlignment="Left"
-                           TextWrapping="Wrap"
-                           Text="In this demo, you will get a bug if you drop an item into timelines more than once.  In a real app, you would need to handle removing the item from your collection of available candidates once it is in a timeline." />
-                <TextBlock Text="When you drop a scene into a timeline it will snap in place depending on where you drop it.  It always snaps to the earliest time it can relative to where you dropped it." />
-                <ListBox x:Name="ListSrc"
-                         dd:DragDrop.IsDragSource="True" />
-
+                
+                <TextBlock Text="CurrentTime Slider:" />
+                <Slider x:Name="Slider_Scale" Minimum="0.1" Maximum="1300" ValueChanged="Slider_Scale_ValueChanged"/>
+                <TextBlock Text="{Binding ElementName=Slider_Scale,Path=Value}"/>
 
             </StackPanel>
         </GroupBox>

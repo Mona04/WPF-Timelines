@@ -13,7 +13,7 @@ using System.Windows.Documents;
 using System.Windows.Controls.Primitives;
 
 
-namespace TimeLineTool
+namespace TimeLines
 {
 
     public enum TimeLineManipulationMode { Linked, Free }
@@ -31,7 +31,7 @@ namespace TimeLineTool
     internal class TimeLineDragAdorner : Adorner
     {
         private ContentPresenter _adorningContentPresenter;
-        internal ITimeLineDataItem Data { get; set; }
+        internal ITimeLineData Data { get; set; }
         internal DataTemplate Template { get; set; }
         Point _mousePosition;
         public Point MousePosition
@@ -123,7 +123,6 @@ namespace TimeLineTool
 
         private Double _bumpThreshold = 1.5;
         private ScrollViewer _scrollViewer;
-        private Canvas _gridCanvas;
         static TimeLineDragAdorner _dragAdorner;
         static TimeLineDragAdorner DragAdorner
         {
@@ -158,68 +157,29 @@ namespace TimeLineTool
         Boolean _unitSizeInitialized = false;
         Boolean _startTimeInitialized = false;
 
+        bool bBindInitialize = false;
 
         #region dependency properties
 
 
-        public ITimeLineDataItem FocusOnItem
+        public ITimeLineData FocusOnItem
         {
-            get { return (ITimeLineDataItem)GetValue(FocusOnItemProperty); }
+            get { return (ITimeLineData)GetValue(FocusOnItemProperty); }
             set { SetValue(FocusOnItemProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for FocusOnItem.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty FocusOnItemProperty =
-            DependencyProperty.Register("FocusOnItem", typeof(ITimeLineDataItem), typeof(TimeLineControl), new UIPropertyMetadata(null, new PropertyChangedCallback(FocusItemChanged)));
+            DependencyProperty.Register("FocusOnItem", typeof(ITimeLineData), typeof(TimeLineControl), new UIPropertyMetadata(null, new PropertyChangedCallback(FocusItemChanged)));
         public static void FocusItemChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             TimeLineControl tc = d as TimeLineControl;
             if ((e.NewValue != null) && (tc != null))
             {
-                tc.ScrollToItem(e.NewValue as ITimeLineDataItem);
+                //tc.ScrollToItem(e.NewValue as ITimeLineData);
             }
 
         }
-        private void ScrollToItem(ITimeLineDataItem target)
-        {
-            Double tgtNewWidth = 0;
-            Double maxUnitSize = 450;//28000;
-            Double minUnitSize = 1;
-            if (_scrollViewer != null)
-            {
-                for (int i = 1; i < Children.Count; i++)
-                {
-                    var ctrl = Children[i] as TimeLineItemControl;
-                    if (ctrl != null && ctrl.DataContext == target)
-                    {
-                        Double curW = ctrl.Width;
-                        if (curW < 5)
-                        {
-                            tgtNewWidth = 50;
-                        }
-                        else if (curW > _scrollViewer.ViewportWidth)
-                        {
-                            tgtNewWidth = _scrollViewer.ViewportWidth / 3;
-                        }
-
-                        if (tgtNewWidth != 0)
-                        {
-                            Double newUnitSize = (UnitSize * tgtNewWidth) / curW;
-                            if (newUnitSize > maxUnitSize)
-                                newUnitSize = maxUnitSize;
-                            else if (newUnitSize < minUnitSize)
-                                newUnitSize = minUnitSize;
-                            UnitSize = newUnitSize;
-                            SynchronizeSiblings();
-                        }
-                        ctrl.BringIntoView();
-                        return;
-                    }
-                }
-            }
-        }
-
-
 
         #region manager
         public ITimeLineManager Manager
@@ -260,19 +220,6 @@ namespace TimeLineTool
         #endregion
 
         #region background and grid dependency properties
-        #region minimum unit width
-        public Double MinimumUnitWidth
-        {
-            get { return (Double)GetValue(MinimumUnitWidthProperty); }
-            set { SetValue(MinimumUnitWidthProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for MinimumUnitWidth.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MinimumUnitWidthProperty =
-            DependencyProperty.Register("MinimumUnitWidth", typeof(Double), typeof(TimeLineControl),
-                new UIPropertyMetadata(10.0,
-                    new PropertyChangedCallback(OnBackgroundValueChanged)));
-        #endregion
 
         #region snap to grid
         public Boolean SnapToGrid
@@ -285,126 +232,8 @@ namespace TimeLineTool
         public static readonly DependencyProperty SnapToGridProperty =
             DependencyProperty.Register("SnapToGrid", typeof(Boolean), typeof(TimeLineControl),
                 new UIPropertyMetadata(null));
-        //new UIPropertyMetadata(false,
-        //new PropertyChangedCallback(OnBackgroundValueChanged)));
         #endregion
 
-        #region draw time grid
-        public Boolean DrawTimeGrid
-        {
-            get { return (Boolean)GetValue(DrawTimeGridProperty); }
-            set { SetValue(DrawTimeGridProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for DrawTimeGrid.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty DrawTimeGridProperty =
-            DependencyProperty.Register("DrawTimeGrid", typeof(Boolean), typeof(TimeLineControl),
-                new UIPropertyMetadata(false,
-                    new PropertyChangedCallback(OnDrawTimeGridChanged)));
-        #endregion
-
-        #region minor unit thickness
-        public int MinorUnitThickness
-        {
-            get { return (int)GetValue(MinorUnitThicknessProperty); }
-            set { SetValue(MinorUnitThicknessProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for MinorUnitThickness.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MinorUnitThicknessProperty =
-            DependencyProperty.Register("MinorUnitThickness", typeof(int), typeof(TimeLineControl),
-                        new UIPropertyMetadata(1,
-                            new PropertyChangedCallback(OnBackgroundValueChanged)));
-        #endregion
-
-        #region major unit thickness
-        public int MajorUnitThickness
-        {
-            get { return (int)GetValue(MajorUnitThicknessProperty); }
-            set { SetValue(MajorUnitThicknessProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for MajorUnitThickness.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MajorUnitThicknessProperty =
-            DependencyProperty.Register("MajorUnitThickness", typeof(int), typeof(TimeLineControl),
-                new UIPropertyMetadata(3, new PropertyChangedCallback(OnBackgroundValueChanged)));
-        #endregion
-
-        private static byte _defC = 80;
-
-        #region day line brush
-        public Brush DayLineBrush
-        {
-            get { return (Brush)GetValue(DayLineBrushProperty); }
-            set { SetValue(DayLineBrushProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for DayLineBrush.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty DayLineBrushProperty =
-            DependencyProperty.Register("DayLineBrush", typeof(Brush), typeof(TimeLineControl),
-                new UIPropertyMetadata(new SolidColorBrush(new Color() { R = _defC, G = _defC, B = _defC, A = 255 }),
-                    new PropertyChangedCallback(OnBackgroundValueChanged)));
-        #endregion
-
-        #region hour line brush
-        public Brush HourLineBrush
-        {
-            get { return (Brush)GetValue(HourLineBrushProperty); }
-            set { SetValue(HourLineBrushProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for HourLineBrush.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty HourLineBrushProperty =
-            DependencyProperty.Register("HourLineBrush", typeof(Brush), typeof(TimeLineControl),
-            new UIPropertyMetadata(new SolidColorBrush(new Color() { R = _defC, G = _defC, B = _defC, A = 255 / 2 }),
-                new PropertyChangedCallback(OnBackgroundValueChanged)));
-
-        #endregion
-
-        #region minute line brush
-        public Brush MinuteLineBrush
-        {
-            get { return (Brush)GetValue(MinuteLineBrushProperty); }
-            set { SetValue(MinuteLineBrushProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for MinuteLineBrush.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MinuteLineBrushProperty =
-            DependencyProperty.Register("MinuteLineBrush", typeof(Brush), typeof(TimeLineControl),
-            new UIPropertyMetadata(new SolidColorBrush(new Color() { R = _defC, G = _defC, B = _defC, A = 255 / 3 }),
-                new PropertyChangedCallback(OnBackgroundValueChanged)));
-        #endregion
-
-        #region millisecond line brush
-        public Brush MilliSecondLineBrush
-        {
-            get { return (Brush)GetValue(MillisecondLineBrushProperty); }
-            set { SetValue(MillisecondLineBrushProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for MinuteLineBrush.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MillisecondLineBrushProperty =
-            DependencyProperty.Register(nameof(MilliSecondLineBrush), typeof(Brush), typeof(TimeLineControl),
-            new UIPropertyMetadata(new SolidColorBrush(new Color() { R = _defC, G = _defC, B = _defC, A = 255 / 3 }),
-                new PropertyChangedCallback(OnBackgroundValueChanged)));
-        #endregion
-        private static void OnDrawTimeGridChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            TimeLineControl tc = d as TimeLineControl;
-            if (tc != null)
-            {
-                tc.DrawBackGround(true);
-            }
-        }
-
-        private static void OnBackgroundValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            TimeLineControl tc = d as TimeLineControl;
-            if (tc != null)
-            {
-                tc.DrawBackGround();
-            }
-        }
         #endregion
 
         #region item template
@@ -418,8 +247,7 @@ namespace TimeLineTool
         // Using a DependencyProperty as the backing store for ItemTemplate.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ItemTemplateProperty =
             DependencyProperty.Register("ItemTemplate", typeof(DataTemplate), typeof(TimeLineControl),
-            new UIPropertyMetadata(null,
-                new PropertyChangedCallback(OnItemTemplateChanged)));
+            new UIPropertyMetadata(null, new PropertyChangedCallback(OnItemTemplateChanged)));
         private static void OnItemTemplateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             TimeLineControl tc = d as TimeLineControl;
@@ -429,32 +257,28 @@ namespace TimeLineTool
             }
         }
 
-
-
         #endregion
 
         #region Items
-        public ObservableCollection<ITimeLineDataItem> Items
+        public ObservableCollection<ITimeLineData> Items
         {
-            get { return (ObservableCollection<ITimeLineDataItem>)GetValue(ItemsProperty); }
+            get { return (ObservableCollection<ITimeLineData>)GetValue(ItemsProperty); }
             set { SetValue(ItemsProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for Items.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ItemsProperty =
-            DependencyProperty.Register("Items", typeof(ObservableCollection<ITimeLineDataItem>), typeof(TimeLineControl),
+            DependencyProperty.Register("Items", typeof(ObservableCollection<ITimeLineData>), typeof(TimeLineControl),
             new UIPropertyMetadata(null,
                 new PropertyChangedCallback(OnItemsChanged)));
         private static void OnItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             TimeLineControl tc = d as TimeLineControl;
-            if (tc != null)
+            if (tc != null && tc.bBindInitialize)
             {
-                tc.InitializeItems(e.NewValue as ObservableCollection<ITimeLineDataItem>);
+                tc.InitializeItems(e.NewValue as ObservableCollection<ITimeLineData>);
                 tc.UpdateUnitSize(tc.UnitSize);
                 tc._itemsInitialized = true;
-
-                tc.DrawBackGround();
             }
         }
         #endregion
@@ -502,7 +326,6 @@ namespace TimeLineTool
             {
                 tc._unitSizeInitialized = true;
                 tc.UpdateUnitSize((Double)e.NewValue);
-                tc.SynchronizeSiblings();
             }
         }
 
@@ -585,14 +408,11 @@ namespace TimeLineTool
 
         public TimeLineControl()
         {
-            _gridCanvas = new Canvas();
-            Children.Add(_gridCanvas);
             Focusable = true;
             KeyDown += OnKeyDown;
             KeyUp += OnKeyUp;
-            MouseEnter += TimeLineControl_MouseEnter;
-            MouseLeave += TimeLineControl_MouseLeave;
-            //Items = new ObservableCollection<ITimeLineDataItem>();
+
+            //Items = new ObservableCollection<ITimeLineData>();
 
             DragDrop.AddDragOverHandler(this, TimeLineControl_DragOver);
             DragDrop.AddDropHandler(this, TimeLineControl_Drop);
@@ -601,9 +421,35 @@ namespace TimeLineTool
 
             AllowDrop = true;
 
-
             _scrollViewer = GetParentScrollViewer();
+            Loaded += (s, e) =>
+            {
+                var parent = VisualTreeHelper.GetParent(this);
+                while (parent != null && !(parent is Timelines))
+                    parent = VisualTreeHelper.GetParent(parent);
+                if(parent is Timelines timelines)
+                {
+                    Binding startTimeBind = new Binding(nameof(StartTime)) { Source = parent } ;
+                    SetBinding(TimeLineControl.StartTimeProperty, startTimeBind);
+                    
+                    Binding endTimeBind = new Binding(nameof(EndTime)) { Source = parent };
+                    SetBinding(TimeLineControl.EndTimeProperty, endTimeBind);
+                    
+                    Binding viewLevelBind = new Binding(nameof(ViewLevel)) { Source = parent };
+                    SetBinding(TimeLineControl.ViewLevelProperty, viewLevelBind);
+                    
+                    Binding UnitSizeBind = new Binding(nameof(UnitSize)) { Source = parent };
+                    SetBinding(TimeLineControl.UnitSizeProperty, UnitSizeBind);
+                    
+                    ItemTemplate = timelines.TimeItemTemplate;
+                    //Items = item.Datas;
+                    InitializeItems(Items);
+                    ReDrawChildren();
+                }
+                bBindInitialize = true;
+            };
         }
+
         #region control life cycle events
         protected override void OnRender(DrawingContext dc)
         {
@@ -639,6 +485,7 @@ namespace TimeLineTool
             Children.Clear();
         }*/
         #endregion
+
         #region miscellaneous helpers
         private ScrollViewer GetParentScrollViewer()
         {
@@ -669,14 +516,13 @@ namespace TimeLineTool
             }
         }
 
-        private void InitializeItems(ObservableCollection<ITimeLineDataItem> observableCollection)
+        private void InitializeItems(ObservableCollection<ITimeLineData> observableCollection)
         {
             if (observableCollection == null)
                 return;
             this.Children.Clear();
-            Children.Add(_gridCanvas);
 
-            foreach (ITimeLineDataItem data in observableCollection)
+            foreach (ITimeLineData data in observableCollection)
             {
                 TimeLineItemControl adder = CreateTimeLineItemControl(data);
 
@@ -690,7 +536,7 @@ namespace TimeLineTool
         {
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
             {
-                var itm = e.NewItems[0] as ITimeLineDataItem;
+                var itm = e.NewItems[0] as ITimeLineData;
                 if (itm.StartTime.HasValue && itm.StartTime.Value == TimeSpan.MinValue)
                 {//newly created item isn't a drop in so we need to instantiate and place its control.
                     TimeSpan duration = itm.EndTime.Value.Subtract(itm.StartTime.Value);
@@ -729,7 +575,7 @@ namespace TimeLineTool
             }
         }
 
-        private TimeLineItemControl CreateTimeLineItemControl(ITimeLineDataItem data)
+        private TimeLineItemControl CreateTimeLineItemControl(ITimeLineData data)
         {
             Binding startBinding = new Binding("StartTime");
             startBinding.Mode = BindingMode.TwoWay;
@@ -741,6 +587,7 @@ namespace TimeLineTool
 
             TimeLineItemControl adder = new TimeLineItemControl();
             adder.TimeLineStartTime = timelineStart;
+            adder.ViewLevel = ViewLevel;
             adder.DataContext = data;
             adder.Content = data;
 
@@ -756,12 +603,13 @@ namespace TimeLineTool
             adder.MouseMove += item_MouseMove;
             adder.PreviewMouseLeftButtonUp += item_PreviewEditButtonUp;*/
             adder.PreviewMouseRightButtonDown += item_PreviewEditButtonDown;
-            adder.MouseMove += item_MouseMove;
             adder.PreviewMouseRightButtonUp += item_PreviewEditButtonUp;
+            adder.MouseMove += item_MouseMove;
 
             adder.PreviewMouseLeftButtonUp += item_PreviewDragButtonUp;
             adder.PreviewMouseLeftButtonDown += item_PreviewDragButtonDown;
             adder.UnitSize = UnitSize;
+
             return adder;
         }
         #endregion
@@ -797,11 +645,10 @@ namespace TimeLineTool
 
         //TODO: set up the timeline start date dependency property and do this margin check
         //for all including the first one.
-        private void ReDrawChildren()
+        public void ReDrawChildren()
         {
             if (Items == null)
             {
-                DrawBackGround();
                 return;
             }
             TimeSpan start = (TimeSpan)GetValue(StartTimeProperty);
@@ -822,75 +669,10 @@ namespace TimeLineTool
                 }
 
             }
-            //find our background rectangle and set its width;
-            DrawBackGround();
         }
         #endregion
 
         #region background and grid methods
-        private void DrawBackGround(Boolean isDrawGridUpdate = false)
-        {
-            Brush b = Background;
-            double setWidth = MinWidth;
-            if (_gridCanvas.Children.Count <= 0)
-            {
-                _gridCanvas.Children.Add(new Rectangle());
-            }
-
-            Rectangle bg = _gridCanvas.Children[0] as Rectangle;
-            if (!_startTimeInitialized || !_unitSizeInitialized ||  
-                !_itemsInitialized || Items == null)
-            {
-                setWidth = Math.Max(MinWidth, GetMyWidth());
-                setWidth = Math.Max(setWidth, SynchWidth);
-                bg.Width = setWidth;
-                bg.Height = Math.Max(DesiredSize.Height, Height);
-                if (Double.IsNaN(bg.Height) || bg.Height < MinHeight)
-                {
-                    bg.Height = MinHeight;
-                }
-                bg.Fill = b;
-                Width = bg.Width;
-                Height = bg.Height;
-            }
-            else
-            {
-                var oldW = Width;
-                var oldDrawTimeGrid = DrawTimeGrid;
-                if (isDrawGridUpdate)
-                    oldDrawTimeGrid = !oldDrawTimeGrid;
-
-                if (Items == null) return;
-
-                setWidth = Math.Max(MinWidth, GetMyWidth());
-                setWidth = Math.Max(setWidth, SynchWidth);
-                bg.Width = setWidth;
-                bg.Height = Math.Max(DesiredSize.Height, Height);
-                if (Double.IsNaN(bg.Height) || bg.Height < MinHeight)
-                {
-                    bg.Height = MinHeight;
-                }
-                bg.Fill = b;
-                Width = bg.Width;
-                Height = bg.Height;
-                if (DrawTimeGrid)
-                {
-                    if (Width != oldW || !oldDrawTimeGrid || (Width == MinWidth))
-                        DrawTimeGridExecute();
-                }
-                else
-                {
-                    ClearTimeGridExecute();
-                }
-                if ((oldW != Width) && (_scrollViewer != null))//if we are at min width then we need to redraw our time grid when unit sizes change
-                {
-                    var available = LayoutInformation.GetLayoutSlot(_scrollViewer);
-                    Size s = new Size(available.Width, available.Height);
-                    _scrollViewer.Measure(s);
-                    _scrollViewer.Arrange(available);
-                }
-            }
-        }
         internal Double GetMyWidth()
         {
             if (StartTime < EndTime)
@@ -934,7 +716,7 @@ namespace TimeLineTool
                     var tcSib = ctrl;
                     if (tcSib != null)
                     {
-                        tcSib.UnitSize = UnitSize; // First need to sync UnitSize 
+                        //tcSib.UnitSize = UnitSize; // First need to sync UnitSize 
                         if (tcSib._isSynchInstigator)
                             isSynchInProgress = true;
                         maxWidth = Math.Max(maxWidth, tcSib.GetMyWidth());
@@ -950,244 +732,14 @@ namespace TimeLineTool
                         var tcSib = ctrl as TimeLineControl;
                         if (tcSib != null && tcSib != this)
                         {
-                            tcSib.SynchWidth = maxWidth;                    
-                            tcSib.DrawBackGround();
+                            tcSib.SynchWidth = maxWidth;
                         }
                     }
                 }
                 _isSynchInstigator = false;
             }
         }
- 
-        private void ClearTimeGridExecute()
-        {
-            if (_gridCanvas.Children.Count == 2)
-                _gridCanvas.Children.RemoveAt(1);
-        }
 
-        private void DrawTimeGridExecute()
-        {
-            if (Items == null)
-                return;
-            if (StartTime == TimeSpan.MinValue)
-                return;
-            if (_gridCanvas.Children.Count < 2)
-            {
-                _gridCanvas.Children.Add(new Canvas());
-            }
-            Canvas grid = _gridCanvas.Children[1] as Canvas;
-            grid.Children.Clear();
-            Double hourSize = UnitSize;
-
-
-
-            //place our gridlines
-            //DrawDayLines(grid);
-            //DrawHourLines(grid);
-            //DrawMinuteLines(grid);
-            DrawMilliSecondLines(grid);
-        }
-        private void DrawMilliSecondLines(Canvas grid)
-        {
-            TimeSpan Range = TimeSpan.FromMilliseconds(10);
-            Double quatSize = UnitSize / 240;
-            Double minuteSize = UnitSize / 3600;
-            int startHOrder = StartTime.Minutes;
-            int startDOrder = StartTime.Seconds;
-            int remainingMinutes = 60 - startHOrder;
-            int remainingSeconds = 60 - startDOrder;
-            if (remainingSeconds == 60)
-                remainingSeconds = 0;
-
-            TimeSpan MinTimeRange = TimeLineUtils.ConvertDistanceToTime(MinimumUnitWidth, ViewLevel, UnitSize);
-            if (TimeSpan.FromMilliseconds(10) >= MinTimeRange)
-            {
-                TimeSpan time = TimeSpan.FromMilliseconds(10);
-                double firstDist = TimeLineUtils.ConvertTimeToDistance(time, ViewLevel, UnitSize);
-                DrawIncrementLines(grid, time, firstDist, time, MilliSecondLineBrush, 10);
-            }
-            else if (TimeSpan.FromMilliseconds(25) >= MinTimeRange)
-            {
-                TimeSpan time = TimeSpan.FromMilliseconds(25);
-                double firstDist = TimeLineUtils.ConvertTimeToDistance(time, ViewLevel, UnitSize);
-                DrawIncrementLines(grid, time, firstDist, time, MilliSecondLineBrush, 4);
-            }
-            else if (TimeSpan.FromMilliseconds(100) >= MinTimeRange)
-            {
-                TimeSpan time = TimeSpan.FromMilliseconds(100);
-                double firstDist = TimeLineUtils.ConvertTimeToDistance(time, ViewLevel, UnitSize);
-                DrawIncrementLines(grid, time, firstDist, time, MilliSecondLineBrush, 10);
-            }
-        }
-        private void DrawMinuteLines(Canvas grid)
-        {
-            Double halfHourSize = UnitSize / 2;
-            Double fifteenMinSize = UnitSize / 4;
-            Double minuteSize = UnitSize / 60;
-            int startMinute = StartTime.Minutes;
-            int startSecond = StartTime.Seconds;
-            int remainingMinutes = 60 - startMinute;
-            int remainingSeconds = 60 - startSecond;
-            if (remainingSeconds == 60)
-                remainingSeconds = 0;
-
-
-            if (fifteenMinSize >= MinimumUnitWidth)
-            {
-                if (startMinute < 45)
-                    remainingMinutes = 45 - startMinute;
-                if (startMinute < 30)
-                    remainingMinutes = 30 - startMinute;
-                if (startMinute < 15)
-                    remainingMinutes = 15 - startMinute;
-                if (startSecond != 0)
-                    remainingMinutes--;
-                else remainingMinutes = 0;
-
-                TimeSpan nextFifteenGap = new TimeSpan(0, remainingMinutes, remainingSeconds);
-                TimeSpan nextFifteenDate = StartTime.Add(nextFifteenGap);
-                Double nextFifteenDistance = nextFifteenGap.TotalHours * UnitSize;
-                //DrawIncrementLines(grid, nextFifteenDate, nextFifteenDistance, new TimeSpan(0, 15, 0), fifteenMinSize, MinuteLineBrush, 0);
-
-            }
-            else if (halfHourSize >= MinimumUnitWidth)
-            {
-                if (startMinute < 30)
-                    remainingMinutes = 30 - startMinute;
-                if (startSecond != 0)
-                    remainingMinutes--;
-                TimeSpan nextHalfGap = new TimeSpan(0, remainingMinutes, remainingSeconds);
-                TimeSpan nextHalfDate = StartTime.Add(nextHalfGap);
-                Double nextHalfDistance = nextHalfGap.TotalHours * UnitSize;
-                //DrawIncrementLines(grid, nextHalfDate, nextHalfDistance, new TimeSpan(0, 30, 0), halfHourSize, MinuteLineBrush, 0);
-            }
-
-        }
-        private void DrawHourLines(Canvas grid)
-        {
-            Double hourSize = UnitSize;
-            Double halfDaySize = hourSize * 10;
-            int startMinute = StartTime.Minutes;
-            int remainingMinutes = 60 - startMinute;
-            int startSecond = StartTime.Seconds;
-            int remainingSeconds = 60 - startSecond;
-            if (remainingSeconds == 60)
-                remainingSeconds = 0;
-            if (startSecond != 0)
-                remainingMinutes--;
-            if (startSecond != 0)
-                remainingMinutes--;
-            else remainingMinutes = 0;
-
-            if (hourSize >= MinimumUnitWidth)
-            {
-                int remainingToMajor = 24 - StartTime.Hours;
-                if (StartTime.Hours < 12)
-                    remainingToMajor = 12 - StartTime.Hours;
-                //time to our next hour
-                TimeSpan firstHourGap = new TimeSpan(0, remainingMinutes, remainingSeconds);
-                TimeSpan nextHour = StartTime.Add(firstHourGap);
-                Double firstHourDistance = firstHourGap.TotalHours * hourSize;
-                //DrawIncrementLines(grid, nextHour, firstHourDistance,
-                //                    new TimeSpan(1, 0, 0), hourSize, HourLineBrush, 10, remainingToMajor);
-            }
-            else if (halfDaySize >= MinimumUnitWidth)
-            {
-                int startHour = StartTime.Hours;
-                int remainingHours = 24 - startHour;
-                if (startHour < 12)
-                {
-                    remainingHours = 12 - startHour;
-                }
-                if (startMinute != 0)
-                    remainingHours--;
-
-
-                TimeSpan nextHalfGap = new TimeSpan(remainingHours, remainingMinutes, remainingSeconds);
-                TimeSpan nextHalfDay = StartTime.Add(nextHalfGap);
-                Double nextHalfDistance = nextHalfGap.TotalHours * hourSize;
-                //DrawIncrementLines(grid, nextHalfDay, nextHalfDistance, new TimeSpan(10, 0, 0), halfDaySize, HourLineBrush, -1);
-            }
-        }
-        private void DrawDayLines(Canvas grid)
-        {
-            Double daySize = UnitSize * 24;
-
-
-            if (daySize >= MinimumUnitWidth)
-            {
-                TimeSpan increment = new TimeSpan(24, 0, 0);
-                int startHour = StartTime.Hours;
-                int startMinute = StartTime.Minutes;
-                int remainingHours = 24 - startHour;
-                if (startMinute > 0)
-                    remainingHours--;
-                int remainingMinutes = 60 - startMinute;
-                if (startMinute == 0)
-                    remainingMinutes = 0;
-                int startSecond = StartTime.Seconds;
-                int remainingSeconds = 60 - startSecond;
-                if (startSecond != 0)
-                    remainingMinutes--;
-                else
-                    remainingSeconds = 0;
-
-
-
-                TimeSpan firstDayGap = new TimeSpan(remainingHours, remainingMinutes, remainingSeconds);
-                Double firstDayDistance = (firstDayGap.TotalHours * UnitSize);
-                TimeSpan nextDay = StartTime.Add(new TimeSpan(remainingHours, remainingMinutes, 0));
-
-
-                //DrawIncrementLines(grid, nextDay, firstDayDistance,
-                //                    increment, daySize, DayLineBrush, 7);
-            }
-
-        }
-        private void DrawIncrementLines(Canvas grid, TimeSpan firstLineDate, Double firstLineDistance,
-                TimeSpan timeStep, Brush brush, int majorEvery, int majorEveryOffset = 0)
-        {
-            Double curX = firstLineDistance;
-            TimeSpan curDate = firstLineDate;
-            int cnt = 1;
-            while (curX < Width)
-            {
-                Line l = new Line();
-                l.ToolTip = curDate;
-                l.StrokeThickness = MinorUnitThickness;
-                if ((majorEvery > 0) && ((cnt - majorEveryOffset) % majorEvery == 0))
-                {
-                    l.StrokeThickness = MajorUnitThickness;
-                    TextBlock text = new TextBlock() { Text = TimeLineUtils.GetTimeMark(curDate, ViewLevel) };
-                    grid.Children.Add(text);
-                    Canvas.SetLeft(text, curX);
-                    Canvas.SetTop(text, l.Y2 + 10);
-                }
-                l.Stroke = brush;
-                l.X1 = 0;
-                l.X2 = 0;
-                l.Y1 = 0;
-                l.Y2 = Math.Max(DesiredSize.Height, Height);
-                grid.Children.Add(l);
-                Canvas.SetLeft(l, curX);                
-
-                curX +=  TimeLineUtils.ConvertTimeToDistance(timeStep, ViewLevel, UnitSize);
-                curDate += timeStep;
-                cnt++;
-            }
-        }
-        #endregion
-
-        #region mouse enter and leave events
-        void TimeLineControl_MouseLeave(object sender, MouseEventArgs e)
-        {
-            //Keyboard.Focus(this);
-        }
-
-        void TimeLineControl_MouseEnter(object sender, MouseEventArgs e)
-        {
-            //Keyboard.Focus(this);
-        }
         #endregion
 
         #region drag events and fields
@@ -1213,17 +765,15 @@ namespace TimeLineTool
             _dragStartPosition.Y = double.MinValue;
             _dragObject = null;
         }
-
-
         void TimeLineControl_DragOver(object sender, DragEventArgs e)
         {
-            //throw new NotImplementedException();
             TimeLineItemControl d = e.Data.GetData(typeof(TimeLineItemControl)) as TimeLineItemControl;
+        
             if (d != null)
             {
                 if (Manager != null)
                 {
-                    if (!Manager.CanAddToTimeLine(d.DataContext as ITimeLineDataItem))
+                    if (!Manager.CanAddToTimeLine(d.DataContext as ITimeLineData))
                     {
                         e.Effects = DragDropEffects.None;
                         return;
@@ -1248,7 +798,7 @@ namespace TimeLineTool
                 {
                     if (Manager != null)
                     {
-                        if (!Manager.CanAddToTimeLine(d2 as ITimeLineDataItem))
+                        if (!Manager.CanAddToTimeLine(d2 as ITimeLineData))
                         {
                             e.Effects = DragDropEffects.None;
                             return;
@@ -1276,26 +826,24 @@ namespace TimeLineTool
                     DragAdorner.InvalidateVisual();
                 }
             }
-            DragScroll(e);
+            //DragScroll(e);
         }
-
         void TimeLineControL_DragLeave(object sender, DragEventArgs e)
         {
             DragAdorner = null;
             Children.Remove(_tmpDraggAdornerControl);
             _tmpDraggAdornerControl = null;
         }
-
         void TimeLineControl_Drop(object sender, DragEventArgs e)
         {
             DragAdorner = null;
 
             TimeLineItemControl dropper = e.Data.GetData(typeof(TimeLineItemControl)) as TimeLineItemControl;
-            ITimeLineDataItem dropData = null;
+            ITimeLineData dropData = null;
             if (dropper == null)
             {
-                //dropData = e.Data.GetData(typeof(ITimeLineDataItem)) as ITimeLineDataItem;
-                dropData = e.Data.GetData("GongSolutions.Wpf.DragDrop") as ITimeLineDataItem;
+                //dropData = e.Data.GetData(typeof(ITimeLineData)) as ITimeLineData;
+                dropData = e.Data.GetData("GongSolutions.Wpf.DragDrop") as ITimeLineData;
                 if (dropData != null)
                 {
                     //I haven't figured out why but
@@ -1316,7 +864,7 @@ namespace TimeLineTool
             }
             var dropX = e.GetPosition(this).X;
             int newIndex = GetDroppedNewIndex(dropX);
-            var curData = dropper.DataContext as ITimeLineDataItem;
+            var curData = dropper.DataContext as ITimeLineData;
             var curIndex = Items.IndexOf(curData);
             if ((curIndex == newIndex || curIndex + 1 == newIndex) && dropData == null && dropper.Parent == this)//dropdata null is to make sure we aren't failing on adding a new data item into the timeline
             //dropper.parent==this makes it so that we allow a dropper control from another timeline to be inserted in at the start.
@@ -1370,8 +918,6 @@ namespace TimeLineTool
                     }
                 }
             }
-            //ReDrawChildren();
-            DrawBackGround();
             e.Handled = true;
         }
 
@@ -1379,7 +925,7 @@ namespace TimeLineTool
         #region drop helpers
         private void InsertTimeLineItemControlAt(int index, TimeLineItemControl adder)
         {
-            var Data = adder.DataContext as ITimeLineDataItem;
+            var Data = adder.DataContext as ITimeLineData;
             if (Items.Contains(Data))
                 return;
 
@@ -1396,13 +942,13 @@ namespace TimeLineTool
 
             adder.PreviewMouseLeftButtonUp += item_PreviewDragButtonUp;
             adder.PreviewMouseLeftButtonDown += item_PreviewDragButtonDown;
-            //child 0 is our grid and we want to keep that there.
-            Children.Insert(index + 1, adder);
+
+            Children.Insert(index, adder);
             Items.Insert(index, Data);
         }
         private void RemoveTimeLineItemControl(TimeLineItemControl remover)
         {
-            var curData = remover.DataContext as ITimeLineDataItem;
+            var curData = remover.DataContext as ITimeLineData;
             remover.PreviewMouseRightButtonDown -= item_PreviewEditButtonDown;
             remover.MouseMove -= item_MouseMove;
             remover.PreviewMouseRightButtonUp -= item_PreviewEditButtonUp;
@@ -1516,42 +1062,6 @@ namespace TimeLineTool
         }
         #endregion
 
-
-        //NOT WORKING YET AND I DON'T KNOW WHY 8(
-        private void DragScroll(DragEventArgs e)
-        {
-            if (_scrollViewer == null)
-            {
-                _scrollViewer = GetParentScrollViewer();
-            }
-            if (_scrollViewer != null)
-            {
-                var available = LayoutInformation.GetLayoutSlot(this);
-                Point scrollPos = e.GetPosition(_scrollViewer);
-                Double scrollMargin = 50;
-                var actualW = _scrollViewer.ActualWidth;
-                if (scrollPos.X >= actualW - scrollMargin &&
-                    _scrollViewer.HorizontalOffset <= _scrollViewer.ExtentWidth - _scrollViewer.ViewportWidth)
-                {
-                    _scrollViewer.LineRight();
-                }
-                else if (scrollPos.X < scrollMargin && _scrollViewer.HorizontalOffset > 0)
-                {
-                    _scrollViewer.LineLeft();
-                }
-                Double actualH = _scrollViewer.ActualHeight;
-                if (scrollPos.Y >= actualH - scrollMargin &&
-                    _scrollViewer.VerticalOffset <= _scrollViewer.ExtentHeight - _scrollViewer.ViewportHeight)
-                {
-                    _scrollViewer.LineDown();
-                }
-                else if (scrollPos.Y < scrollMargin && _scrollViewer.VerticalOffset >= 0)
-                {
-                    _scrollViewer.LineUp();
-                }
-            }
-        }
-
         #endregion
 
 
@@ -1561,7 +1071,7 @@ namespace TimeLineTool
         void item_PreviewEditButtonUp(object sender, MouseButtonEventArgs e)
         {
             (sender as TimeLineItemControl).ReleaseMouseCapture();
-            Keyboard.Focus(this);
+            //Keyboard.Focus(this);
         }
 
         void item_PreviewEditButtonDown(object sender, MouseButtonEventArgs e)
@@ -1598,14 +1108,14 @@ namespace TimeLineTool
         }
 
         internal void HandleItemManipulation(TimeLineItemControl ctrl, TimeLineItemChangedEventArgs e)
-        {
-
+        {          
             Boolean doStretch = false;
             TimeSpan deltaT = e.DeltaTime;
             TimeSpan zeroT = new TimeSpan();
             int direction = deltaT.CompareTo(zeroT);
             if (direction == 0)
                 return;//shouldn't happen
+     
 
             TimeLineItemControl previous = null;
             TimeLineItemControl after = null;
@@ -1622,7 +1132,6 @@ namespace TimeLineTool
             Double cWidth = 0;
             Double cEnd = 0;
             ctrl.GetPlacementInfo(ref cLeft, ref cWidth, ref cEnd);
-
             switch (e.Action)
             {
                 case TimeLineAction.Move:
@@ -1631,42 +1140,15 @@ namespace TimeLineTool
                     Double chainGap = Double.MaxValue;
                     if (direction > 0)
                     {
-                        //find chain connecteds that are after this one
-                        //delta each one in that chain that we are pushing
-                        List<TimeLineItemControl> afterChain = GetTimeLineForwardChain(ctrl, afterIndex, ref chainGap);
-
                         if (chainGap < useDeltaX)
                             useDeltaX = chainGap;
-                        foreach (var ti in afterChain)
-                        {
-                            ti.MoveMe(useDeltaX);
-                        }
-
-                        //find the size of our chain so we bring it into view
-                        var first = afterChain[0];
-                        var last = afterChain[afterChain.Count - 1];
-                        BringChainIntoView(first, last, direction);
-
-
+                        ctrl.MoveMe(useDeltaX);                      
                     }
                     if (direction < 0)
                     {
-                        Boolean previousBackToStart = false;
-                        List<TimeLineItemControl> previousChain = GetTimeLineBackwardsChain(ctrl, previousIndex, ref previousBackToStart, ref chainGap);
-                        if (-chainGap > useDeltaX)
-                        {
+                        if (-chainGap > useDeltaX)                        
                             useDeltaX = chainGap;
-                        }
-                        if (!previousBackToStart)
-                        {
-                            foreach (var ti in previousChain)
-                            {
-                                ti.MoveMe(useDeltaX);
-                            }
-                        }
-                        var first = previousChain[0];//previousChain[previousChain.Count - 1];
-                        var last = previousChain[previousChain.Count - 1];
-                        BringChainIntoView(last, first, direction);
+                        ctrl.MoveMe(useDeltaX);;
                     }
                     #endregion
                     break;
@@ -1686,14 +1168,14 @@ namespace TimeLineTool
                                 previous.GetPlacementInfo(ref pLeft, ref pWidth, ref pEnd);
                                 gap = cLeft - pEnd;
                             }
-                            if (direction < 0 && Math.Abs(gap) < Math.Abs(useDeltaX) && Math.Abs(gap) > _bumpThreshold)//if we are negative and not linked, but about to bump
-                                useDeltaX = -gap;
+                            //if (direction < 0 && Math.Abs(gap) < Math.Abs(useDeltaX) && Math.Abs(gap) > _bumpThreshold)//if we are negative and not linked, but about to bump
+                            //    useDeltaX = -gap;
                             if (Math.Abs(gap) < _bumpThreshold)
                             {//we are linked
                                 if (ctrl.CanDelta(0, useDeltaX) && previous.CanDelta(1, useDeltaX))
                                 {
                                     ctrl.MoveStartTime(useDeltaX);
-                                    previous.MoveEndTime(useDeltaX);
+                                    //previous.MoveEndTime(useDeltaX);
                                 }
                             }
                             else if (ctrl.CanDelta(0, useDeltaX))
@@ -1719,10 +1201,7 @@ namespace TimeLineTool
                                     Double pEnd = 0;
                                     previous.GetPlacementInfo(ref pLeft, ref pWidth, ref pEnd);
                                     gap = cLeft - pEnd;
-
-
                                 }
-
                                 else
                                 {
                                     //don't allow us to stretch further than the gap between current and start time
@@ -1765,14 +1244,14 @@ namespace TimeLineTool
                                 gap = aLeft - cEnd;
                             }
 
-                            if (direction > 0 && gap > _bumpThreshold && gap < useDeltaX)//if we are positive, not linked but about to bump
-                                useDeltaX = -gap;
+                            //if (direction > 0 && gap > _bumpThreshold && gap < useDeltaX)//if we are positive, not linked but about to bump
+                            //    useDeltaX = -gap;
                             if (gap < _bumpThreshold)
                             {//we are linked
                                 if (ctrl.CanDelta(1, useDeltaX) && after.CanDelta(0, useDeltaX))
                                 {
                                     ctrl.MoveEndTime(useDeltaX);
-                                    after.MoveStartTime(useDeltaX);
+                                    //after.MoveStartTime(useDeltaX);
                                 }
                             }
                             else if (ctrl.CanDelta(0, useDeltaX))
@@ -1815,30 +1294,6 @@ namespace TimeLineTool
                 default:
                     break;
             }
-        }
-
-        private void BringChainIntoView(TimeLineItemControl first, TimeLineItemControl last, int direction)
-        {
-            Double l1 = 0;
-            Double l2 = 0;
-            Double w = 0;
-            Double w2 = 0;
-            Double end = 0;
-            first.GetPlacementInfo(ref l1, ref w, ref end);
-            last.GetPlacementInfo(ref l2, ref w2, ref end);
-            Double chainW = end - l1;
-            Double leadBuffer = 4 * UnitSize;
-            chainW += leadBuffer;
-            if (direction > 0)
-            {
-
-                first.BringIntoView(new Rect(new Point(0, 0), new Point(chainW, Height)));
-            }
-            else
-            {
-                first.BringIntoView(new Rect(new Point(-leadBuffer, 0), new Point(chainW, Height)));
-            }
-
         }
 
         #endregion
@@ -1896,7 +1351,6 @@ namespace TimeLineTool
             _curX = mouseX;
 
             SynchronizeSiblings();
-            DrawBackGround();
         
             //When we pressed, this lost focus and we therefore didn't capture any changes to the key status
             //so we check it again after our manipulation finishes.  That way we can be linked and go out of or back into it while dragging
@@ -2036,9 +1490,7 @@ namespace TimeLineTool
 
         private TimeLineItemControl GetTimeLineItemControlAt(int i)
         {
-            //child 0 is our background grid.
-            i++;
-            if (i <= 0 || i >= Children.Count)
+            if (i < 0 || i >= Children.Count)
                 return null;
             return Children[i] as TimeLineItemControl;
         }

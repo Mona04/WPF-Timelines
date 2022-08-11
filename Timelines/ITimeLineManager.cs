@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace TimeLineTool
+namespace TimeLines
 {
 	public interface ITimeLineManager
 	{
-		Boolean CanAddToTimeLine(ITimeLineDataItem item);
+		Boolean CanAddToTimeLine(ITimeLineData item);
 	}
 }

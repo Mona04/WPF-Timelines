@@ -1,0 +1,210 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:TimeLines"
+    xmlns:tt="clr-namespace:TimeLines">
+
+    <Style x:Key="ExpandCollapseToggleStyle" TargetType="ToggleButton">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Background" Value="#BBBBBB"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid  Background="Transparent">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CheckStates">
+                                <VisualState x:Name="Checked">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="Collapsed">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Hidden}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="Expanded">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Unchecked" />
+                                <VisualState x:Name="Indeterminate" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Path x:Name="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{TemplateBinding Background}" StrokeThickness="1.5" Stroke="{TemplateBinding Background}"
+                                Data="M 4 0 L 8 3 L 4 6 Z"/>
+                        <Path x:Name="Expanded" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{TemplateBinding Background}"
+                                Data="M 7 0 L 7 7 L 0 7 Z" Visibility="Hidden" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- To get height of the header, Timelines.Draw() use this tree structures. -->
+    <Style TargetType="{x:Type TreeViewItem}" x:Key="TimelineTreeViewItem">
+        <!--Setter Property="Background"  Value="{StaticResource BackgroundWidget}"/>
+            <Setter Property="Foreground"  Value="{StaticResource ForegroundBase}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BackgroundClick}"/-->
+        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+        <Setter Property="Padding"    Value="0 0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TreeViewItem}">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}"                            
+                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="SelectionStates">
+                                <VisualState x:Name="Selected"/>
+                                <VisualState x:Name="Unselected"/>
+                                <VisualState x:Name="SelectedInactive"/>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="ExpansionStates">
+                                <VisualState x:Name="Expanded">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="ItemsHost">
+                                            <DiscreteObjectKeyFrame KeyTime="0"  Value="{x:Static Visibility.Visible}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Collapsed" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition MinWidth="0" Width="auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <ContentPresenter x:Name="PART_Header"  Grid.ColumnSpan="2" ContentSource="Header" 
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"   />
+                            <ItemsPresenter x:Name="ItemsHost" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Visibility="Collapsed" />
+                            <ToggleButton x:Name="Expander" Style="{StaticResource ExpandCollapseToggleStyle}" ClickMode="Press" 
+                                              IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasItems" Value="false">
+                            <Setter TargetName="Expander" Property="Visibility" Value="Hidden" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="HasHeader" Value="false" />
+                                <Condition Property="Width" Value="Auto" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="PART_Header" Property="MinWidth" Value="75" />
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="HasHeader" Value="false" />
+                                <Condition Property="Height" Value="Auto" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="PART_Header" Property="MinHeight" Value="19" />
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+    <Style TargetType="{x:Type tt:TimelinePivot}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <StackPanel>
+                        <Rectangle Fill="IndianRed" Height="15" Width="10" HorizontalAlignment="Center"/>
+                        <Line Y1="0"  Y2="{TemplateBinding Height}"  Stroke="Gray" StrokeThickness="2" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type tt:TimeLineItemControl}">
+        <Setter Property="EditBorderThreshold" Value="15"/>
+        <Setter Property="Height" Value="50"/>
+        <Setter Property="Width" Value="1000"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type tt:TimeLineItemControl}">
+                    <Grid>
+                        <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0" />
+                        <ContentPresenter HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch"
+                                              x:Name="PART_ContentHostPART_ContentHost" />
+                        <ContentPresenter HorizontalAlignment="Left"
+                                              VerticalAlignment="Stretch"
+                                              x:Name="PART_LeftIndicator">
+                            <ContentPresenter.Content>
+                                <Button Width="30" Height="50" Background="Red"/>
+                            </ContentPresenter.Content>
+                        </ContentPresenter>
+                        <ContentPresenter HorizontalAlignment="Right"
+                                              VerticalAlignment="Stretch"
+                                              x:Name="PART_RightIndicator">
+                            <ContentPresenter.Content>
+                                <Button Width="15" />
+                            </ContentPresenter.Content>
+                        </ContentPresenter>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type tt:Timelines}">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Background" Value="#111111"/>
+        <Setter Property="ItemContainerStyle" Value="{StaticResource TimelineTreeViewItem}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Grid Background="{Binding RelativeSource={RelativeSource AncestorType=tt:Timelines}, Path=Background}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType=tt:Timelines}, Path=HeaderWidth}"/>
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=tt:Timelines}, Path=RulerHeight}"/>
+                            <RowDefinition  />
+                            <RowDefinition  Height="30"/>
+                        </Grid.RowDefinitions>
+
+                        <ScrollViewer x:Name="PART_RulerScrollViewer" Grid.RowSpan="2" Grid.Column="1"
+                                              HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+                            <Canvas x:Name="PART_Ruler"  Background="{Binding RelativeSource={RelativeSource AncestorType=tt:Timelines}, Path=Background}">
+                                <tt:TimelinePivot x:Name="PART_CurTimePivot" Height="2000"/>
+                            </Canvas>
+                        </ScrollViewer>
+                        
+                        <tt:TimelinePlayer x:Name="PART_TimePlayer" Grid.Row="2" Template="{Binding RelativeSource={RelativeSource AncestorType=tt:Timelines}, Path=TimePlayerTemplate}"/>
+
+                        <ScrollViewer x:Name="PART_VerticalScrollViewer" Grid.Row="1"  Grid.ColumnSpan="2"
+                                              HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
+                            <Grid Background="Transparent">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType=tt:Timelines}, Path=HeaderWidth}"/>
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <ItemsPresenter x:Name="PART_ItemsPresenter"/>
+                                <ScrollViewer x:Name="PART_CanvasScrollViewer"  Grid.Column="1"
+                                              HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+                                    <Canvas x:Name="PART_Canvas" Background="{Binding RelativeSource={RelativeSource AncestorType=tt:Timelines}, Path=InternalFillBrush}" />
+                                </ScrollViewer>
+                            </Grid>
+                        </ScrollViewer>
+
+                        <Grid Grid.Column="1" Grid.Row="2" Background="#000000" >
+                            <ScrollBar x:Name="PART_HozitontalScroll" Orientation="Horizontal" Background="Transparent"/>
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>
