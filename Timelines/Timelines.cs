@@ -109,6 +109,7 @@ namespace TimeLines
             base.OnItemsSourceChanged(oldValue, newValue);
 
             CreateTimelineControls();
+            Redraw();
         }
         protected override void OnItemsChanged(NotifyCollectionChangedEventArgs e)
         {
@@ -122,10 +123,17 @@ namespace TimeLines
                 throw new Exception("Binded Item must be ItemLinesDataBase or derivation of it");
 
             CreateTimelineControls();
+
+            // Redraw() require Actual Width, so timer is need.
+            var dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+            dispatcherTimer.Tick += (s, ee) => { Redraw(); dispatcherTimer.Stop(); };
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 1);
+            dispatcherTimer.Start();
         }
         void OnTreeViewItem_Expanded(object sender, RoutedEventArgs e)
         {
             CreateTimelineControls();
+            UpdateLayout();
             Redraw();
         }
         void CreateTimelineControls()

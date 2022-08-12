@@ -220,6 +220,8 @@ namespace TimeLines
 		/// </summary>
 		public static double GetTreeViewHeaderHeight(DependencyObject @this)
         {
+			if (VisualTreeHelper.GetChildrenCount(@this) == 0) 
+				return 0;
 			@this = VisualTreeHelper.GetChild(@this, 0);
 			Grid grid = VisualTreeHelper.GetChild(@this, 0) as Grid;
 			return grid.RowDefinitions[0].ActualHeight;

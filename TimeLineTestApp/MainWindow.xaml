@@ -18,7 +18,8 @@
                 <TextBlock Text="If you are want to magnify/reduce time unit then wheel your mouse while pressing left ctrl" />
                 <GroupBox Header="Timelines Example">
                     <StackPanel>
-                        <tt:Timelines x:Name="Timelines" Height="150" CurrentTime="00:00:01" MarkViewLevel="{x:Static tt:TimeLineViewLevel.Seconds}">
+                        <tt:Timelines x:Name="Timelines" Height="150" CurrentTime="00:00:01" 
+                                      MarkViewLevel="{x:Static tt:TimeLineViewLevel.Seconds}">
                             <tt:Timelines.ItemTemplate>
                                 <HierarchicalDataTemplate DataType="{x:Type local:TempDatas}" ItemsSource="{Binding Childs}">
                                     <Grid >
@@ -63,7 +64,7 @@
                 <TextBlock Text="CurrentTime Slider:" />
                 <Slider x:Name="Slider_Scale" Minimum="0.1" Maximum="1300" ValueChanged="Slider_Scale_ValueChanged"/>
                 <TextBlock Text="{Binding ElementName=Slider_Scale,Path=Value}"/>
-
+                <Button Content="Source Change" Click="Button_Click"/>
             </StackPanel>
         </GroupBox>
     </StackPanel>
