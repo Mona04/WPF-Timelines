@@ -33,7 +33,7 @@
                                     </Grid>
                                 </HierarchicalDataTemplate>
                             </tt:Timelines.ItemTemplate>
-                            <tt:Timelines.TimeItemTempleteSelector>
+                            <tt:Timelines.TimeItemTemplateSelector>
                                 <local:TempDataTemplateSeletor>
                                     <local:TempDataTemplateSeletor.TempDataType>
                                         <DataTemplate  DataType="{x:Type local:TempDataType}" >
@@ -47,7 +47,7 @@
                                         </DataTemplate>
                                     </local:TempDataTemplateSeletor.TempDataType>
                                 </local:TempDataTemplateSeletor>
-                            </tt:Timelines.TimeItemTempleteSelector>
+                            </tt:Timelines.TimeItemTemplateSelector>
                             <tt:Timelines.TimePlayerTemplate>
                                 <ControlTemplate>
                                     <StackPanel Orientation="Horizontal">

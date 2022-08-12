@@ -153,7 +153,7 @@ namespace TimeLines
             Binding UnitSizeBind = new Binding(nameof(UnitSize)) { Source = this };
             control.SetBinding(TimeLineControl.UnitSizeProperty, UnitSizeBind);
 
-            control.ItemTemplateSelector = TimeItemTempleteSelector;
+            control.ItemTemplateSelector = TimeItemTemplateSelector;
             control.Items = context.Datas;          
 
             TimelineControls.Add(control);
@@ -291,13 +291,13 @@ namespace TimeLines
         #region Control Property
 
         #region Time Item template
-        public DataTemplateSelector TimeItemTempleteSelector
+        public DataTemplateSelector TimeItemTemplateSelector
         {
-            get { return (DataTemplateSelector)GetValue(TimeItemTempleteSelectorProperty); }
-            set { SetValue(TimeItemTempleteSelectorProperty, value); }
+            get { return (DataTemplateSelector)GetValue(TimeItemTemplateSelectorProperty); }
+            set { SetValue(TimeItemTemplateSelectorProperty, value); }
         }
-        public static readonly DependencyProperty TimeItemTempleteSelectorProperty =
-            DependencyProperty.Register(nameof(TimeItemTempleteSelector), typeof(DataTemplateSelector), typeof(Timelines),
+        public static readonly DependencyProperty TimeItemTemplateSelectorProperty =
+            DependencyProperty.Register(nameof(TimeItemTemplateSelector), typeof(DataTemplateSelector), typeof(Timelines),
             new UIPropertyMetadata(null, new PropertyChangedCallback(OnItemTemplateChanged)));
         private static void OnItemTemplateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -306,7 +306,7 @@ namespace TimeLines
             {
                 foreach (TimeLineControl timeline in tc.TimelineControls)
                 {
-                    timeline.ItemTemplateSelector = tc.TimeItemTempleteSelector;
+                    timeline.ItemTemplateSelector = tc.TimeItemTemplateSelector;
                 }
             }
         }
