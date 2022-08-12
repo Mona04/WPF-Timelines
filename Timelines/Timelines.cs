@@ -153,7 +153,7 @@ namespace TimeLines
             Binding UnitSizeBind = new Binding(nameof(UnitSize)) { Source = this };
             control.SetBinding(TimeLineControl.UnitSizeProperty, UnitSizeBind);
 
-            control.ItemTemplate = TimeItemTemplate;
+            control.ItemTemplateSelector = TimeItemTempleteSelector;
             control.Items = context.Datas;          
 
             TimelineControls.Add(control);
@@ -290,16 +290,14 @@ namespace TimeLines
 
         #region Control Property
 
-        #region item template
-        public DataTemplate TimeItemTemplate
+        #region Time Item template
+        public DataTemplateSelector TimeItemTempleteSelector
         {
-            get { return (DataTemplate)GetValue(TimeItemTemplateProperty); }
-            set { SetValue(TimeItemTemplateProperty, value); }
+            get { return (DataTemplateSelector)GetValue(TimeItemTempleteSelectorProperty); }
+            set { SetValue(TimeItemTempleteSelectorProperty, value); }
         }
-
-        // Using a DependencyProperty as the backing store for ItemTemplate.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty TimeItemTemplateProperty =
-            DependencyProperty.Register(nameof(TimeItemTemplate), typeof(DataTemplate), typeof(Timelines),
+        public static readonly DependencyProperty TimeItemTempleteSelectorProperty =
+            DependencyProperty.Register(nameof(TimeItemTempleteSelector), typeof(DataTemplateSelector), typeof(Timelines),
             new UIPropertyMetadata(null, new PropertyChangedCallback(OnItemTemplateChanged)));
         private static void OnItemTemplateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -308,7 +306,7 @@ namespace TimeLines
             {
                 foreach (TimeLineControl timeline in tc.TimelineControls)
                 {
-                    timeline.ItemTemplate = tc.TimeItemTemplate;
+                    timeline.ItemTemplateSelector = tc.TimeItemTempleteSelector;
                 }
             }
         }

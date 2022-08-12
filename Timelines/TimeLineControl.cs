@@ -237,16 +237,15 @@ namespace TimeLines
         #endregion
 
         #region item template
-        private DataTemplate _template;
-        public DataTemplate ItemTemplate
+        public DataTemplateSelector ItemTemplateSelector
         {
-            get { return (DataTemplate)GetValue(ItemTemplateProperty); }
+            get { return (DataTemplateSelector)GetValue(ItemTemplateProperty); }
             set { SetValue(ItemTemplateProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for ItemTemplate.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ItemTemplateProperty =
-            DependencyProperty.Register("ItemTemplate", typeof(DataTemplate), typeof(TimeLineControl),
+            DependencyProperty.Register(nameof(ItemTemplateSelector), typeof(DataTemplateSelector), typeof(TimeLineControl),
             new UIPropertyMetadata(null, new PropertyChangedCallback(OnItemTemplateChanged)));
         private static void OnItemTemplateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -423,29 +422,9 @@ namespace TimeLines
 
             _scrollViewer = GetParentScrollViewer();
             Loaded += (s, e) =>
-            {
-                var parent = VisualTreeHelper.GetParent(this);
-                while (parent != null && !(parent is Timelines))
-                    parent = VisualTreeHelper.GetParent(parent);
-                if(parent is Timelines timelines)
-                {
-                    Binding startTimeBind = new Binding(nameof(StartTime)) { Source = parent } ;
-                    SetBinding(TimeLineControl.StartTimeProperty, startTimeBind);
-                    
-                    Binding endTimeBind = new Binding(nameof(EndTime)) { Source = parent };
-                    SetBinding(TimeLineControl.EndTimeProperty, endTimeBind);
-                    
-                    Binding viewLevelBind = new Binding(nameof(ViewLevel)) { Source = parent };
-                    SetBinding(TimeLineControl.ViewLevelProperty, viewLevelBind);
-                    
-                    Binding UnitSizeBind = new Binding(nameof(UnitSize)) { Source = parent };
-                    SetBinding(TimeLineControl.UnitSizeProperty, UnitSizeBind);
-                    
-                    ItemTemplate = timelines.TimeItemTemplate;
-                    //Items = item.Datas;
-                    InitializeItems(Items);
-                    ReDrawChildren();
-                }
+            {              
+                InitializeItems(Items);
+                ReDrawChildren();
                 bBindInitialize = true;
             };
         }
@@ -507,7 +486,6 @@ namespace TimeLines
 
         private void SetTemplate(DataTemplate dataTemplate)
         {
-            _template = dataTemplate;
             for (int i = 0; i < Children.Count; i++)
             {
                 TimeLineItemControl titem = Children[i] as TimeLineItemControl;
@@ -594,9 +572,9 @@ namespace TimeLines
             adder.SetBinding(TimeLineItemControl.StartTimeProperty, startBinding);
             adder.SetBinding(TimeLineItemControl.EndTimeProperty, endBinding);
   
-            if (_template != null)
+            if (ItemTemplateSelector != null)
             {
-                adder.ContentTemplate = _template;
+                adder.ContentTemplate = ItemTemplateSelector.SelectTemplate(data, adder);
             }
 
             /*adder.PreviewMouseLeftButtonDown += item_PreviewEditButtonDown;
@@ -783,7 +761,7 @@ namespace TimeLines
                 //this is an internal drag or a drag from another time line control
                 if (DragAdorner == null)
                 {
-                    _dragAdorner = new TimeLineDragAdorner(d, ItemTemplate);
+                    _dragAdorner = new TimeLineDragAdorner(d, d.ContentTemplate);
 
                 }
                 DragAdorner.MousePosition = e.GetPosition(d);
@@ -818,9 +796,9 @@ namespace TimeLines
                         _tmpDraggAdornerControl.DataContext = d2;
                         _tmpDraggAdornerControl.StartTime = StartTime;
                         _tmpDraggAdornerControl.InitializeDefaultLength();
-                        _tmpDraggAdornerControl.ContentTemplate = ItemTemplate;
+                        //_tmpDraggAdornerControl.ContentTemplate = ItemTemplateSelector != null ? Itemtempl;
 
-                        _dragAdorner = new TimeLineDragAdorner(_tmpDraggAdornerControl, ItemTemplate);
+                        //_dragAdorner = new TimeLineDragAdorner(_tmpDraggAdornerControl, ItemTemplate);
                     }
                     DragAdorner.MousePosition = e.GetPosition(_tmpDraggAdornerControl);
                     DragAdorner.InvalidateVisual();

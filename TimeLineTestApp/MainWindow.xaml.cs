@@ -70,4 +70,15 @@ namespace TimeLineTestApp
 			Timelines.CurrentTime = TimeSpan.FromMilliseconds(e.NewValue);
         }
     }
+
+	class TempDataTemplateSeletor : DataTemplateSelector
+    {
+		public DataTemplate TempDataType { get; set; }
+		public override DataTemplate SelectTemplate(object item, DependencyObject container)
+		{
+			if (item is TempDataType)
+				return TempDataType;
+			return null;
+		}
+	}
 }

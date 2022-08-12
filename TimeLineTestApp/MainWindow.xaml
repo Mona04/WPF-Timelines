@@ -6,6 +6,9 @@
         Title="MainWindow"
         Height="700"
         Width="1024">
+    <Window.Resources>
+        <local:TempDataTemplateSeletor x:Key="TItemTempleteSelector"/>
+    </Window.Resources>
     <StackPanel VerticalAlignment="Stretch" Orientation="Vertical">
         <GroupBox Header="Timelines">
             <StackPanel Orientation="Vertical">
@@ -30,17 +33,21 @@
                                     </Grid>
                                 </HierarchicalDataTemplate>
                             </tt:Timelines.ItemTemplate>
-                            <tt:Timelines.TimeItemTemplate>
-                                <DataTemplate  DataType="{x:Type local:TempDataType}" >
-                                    <Border BorderThickness="1" BorderBrush="Green"  CornerRadius="4"  Margin="0,2"  Background="#77FFFFFF">
-                                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                                            <TextBlock Text="{Binding Path=Name}" />
-                                            <TextBlock Text="{Binding Path=StartTime}" />
-                                            <TextBlock Text="{Binding Path=EndTime}" />
-                                        </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </tt:Timelines.TimeItemTemplate>
+                            <tt:Timelines.TimeItemTempleteSelector>
+                                <local:TempDataTemplateSeletor>
+                                    <local:TempDataTemplateSeletor.TempDataType>
+                                        <DataTemplate  DataType="{x:Type local:TempDataType}" >
+                                            <Border BorderThickness="1" BorderBrush="Green"  CornerRadius="4"  Margin="0,2"  Background="#77FFFFFF">
+                                                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                                                    <TextBlock Text="{Binding Path=Name}" />
+                                                    <TextBlock Text="{Binding Path=StartTime}" />
+                                                    <TextBlock Text="{Binding Path=EndTime}" />
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </local:TempDataTemplateSeletor.TempDataType>
+                                </local:TempDataTemplateSeletor>
+                            </tt:Timelines.TimeItemTempleteSelector>
                             <tt:Timelines.TimePlayerTemplate>
                                 <ControlTemplate>
                                     <StackPanel Orientation="Horizontal">
