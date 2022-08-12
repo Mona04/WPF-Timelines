@@ -62,7 +62,7 @@ namespace TimeLineTestApp
 			datas[4].Datas.Add(tmp3); datas[4].ChannelName = "Tests";
 			datas[5].Datas.Add(tmp3); datas[5].ChannelName = "Tests";
 			
-			//Timelines.ItemsSource = datas;
+			Timelines.ItemsSource = datas;
 		}
 
         private void Slider_Scale_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)

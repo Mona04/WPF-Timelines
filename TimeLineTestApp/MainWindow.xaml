@@ -15,7 +15,7 @@
                 <TextBlock Text="If you are want to magnify/reduce time unit then wheel your mouse while pressing left ctrl" />
                 <GroupBox Header="Timelines Example">
                     <StackPanel>
-                        <tt:Timelines x:Name="Timelines" Height="150" CurrentTime="00:00:01">
+                        <tt:Timelines x:Name="Timelines" Height="150" CurrentTime="00:00:01" MarkViewLevel="{x:Static tt:TimeLineViewLevel.Seconds}">
                             <tt:Timelines.ItemTemplate>
                                 <HierarchicalDataTemplate DataType="{x:Type local:TempDatas}" ItemsSource="{Binding Childs}">
                                     <Grid >

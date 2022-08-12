@@ -191,21 +191,20 @@ namespace TimeLines
             set { SetValue(ViewLevelProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for ViewLevel.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ViewLevelProperty =
             DependencyProperty.Register(nameof(ViewLevel), typeof(TimeLineViewLevel), typeof(Timelines),
-            new UIPropertyMetadata(TimeLineViewLevel.MilliSeconds,
-                new PropertyChangedCallback(OnViewLevelChanged)));
-        private static void OnViewLevelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+            new UIPropertyMetadata(TimeLineViewLevel.MilliSeconds));
+
+        public TimeLineViewLevel MarkViewLevel
         {
-            TimeLineControl tc = d as TimeLineControl;
-            if (tc != null)
-            {
-                //tc.UpdateViewLevel((TimeLineViewLevel)e.NewValue);
-
-            }
-
+            get { return (TimeLineViewLevel)GetValue(MarkViewLevelProperty); }
+            set { SetValue(MarkViewLevelProperty, value); }
         }
+
+        public static readonly DependencyProperty MarkViewLevelProperty =
+            DependencyProperty.Register(nameof(MarkViewLevel), typeof(TimeLineViewLevel), typeof(Timelines),
+            new UIPropertyMetadata(TimeLineViewLevel.MilliSeconds));
+
         #endregion
 
         #region minimum unit width
@@ -558,7 +557,7 @@ namespace TimeLines
                 {
                     l.Y1 = RulerHeight * 0.66;
                     l.StrokeThickness = MajorUnitThickness;
-                    TextBlock text = new TextBlock() { Text = TimeLineUtils.GetTimeMark(curDate, ViewLevel) };
+                    TextBlock text = new TextBlock() { Text = TimeLineUtils.GetTimeMark(curDate, MarkViewLevel) };
                     grid.Children.Add(text);
                     Canvas.SetLeft(text, curX + 5);
                     Canvas.SetTop(text, l.Y1 - 5);
