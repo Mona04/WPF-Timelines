@@ -107,7 +107,6 @@
         </Setter>
     </Style>
 
-
     <Style TargetType="{x:Type tt:TimelinePivot}">
         <Setter Property="Template">
             <Setter.Value>

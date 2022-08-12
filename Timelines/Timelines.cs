@@ -235,11 +235,10 @@ namespace TimeLines
             new UIPropertyMetadata(TimeSpan.FromSeconds(0), new PropertyChangedCallback(OnStartTimeChanged)));
         private static void OnStartTimeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            TimeLineControl tc = d as TimeLineControl;
+            Timelines tc = d as Timelines;
             if (tc != null)
             {
-                //tc._startTimeInitialized = true;
-                //tc.ReDrawChildren();
+                tc.Redraw();
             }
         }
         #endregion
@@ -254,16 +253,8 @@ namespace TimeLines
         // Using a DependencyProperty as the backing store for StartDate.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty EndTimeProperty =
             DependencyProperty.Register(nameof(EndTime), typeof(TimeSpan), typeof(Timelines),
-            new UIPropertyMetadata(TimeSpan.FromMilliseconds(1300), new PropertyChangedCallback(OnEndTimeChanged)));
-        private static void OnEndTimeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            TimeLineControl tc = d as TimeLineControl;
-            if (tc != null)
-            {
-                //tc._startTimeInitialized = true;
-                //tc.ReDrawChildren();
-            }
-        }
+            new UIPropertyMetadata(TimeSpan.FromMilliseconds(1300), new PropertyChangedCallback(OnStartTimeChanged)));
+
         #endregion
 
         #region current time
