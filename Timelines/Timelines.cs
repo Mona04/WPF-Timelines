@@ -483,6 +483,8 @@ namespace TimeLines
         #endregion
         virtual public void Redraw()
         {
+            if (PART_Ruler == null) return;
+
             PART_Ruler.Children.Clear();
             PART_Ruler.Children.Add(PART_CurTimePivot);
             PART_Canvas.Children.Clear();
