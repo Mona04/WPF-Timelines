@@ -33,6 +33,7 @@ namespace TimeLineTestApp
         }
 		public TimeSpan? StartTime { get; set; }
 		public TimeSpan? EndTime { get; set; }
+		public bool? bResizable { get; set; }
 		public String Name { get; set; }
 	}
 	public partial class MainWindow : Window
@@ -46,6 +47,7 @@ namespace TimeLineTestApp
 			{
 				StartTime = TimeSpan.FromMilliseconds(1),
 				EndTime = TimeSpan.FromMilliseconds(2),
+				bResizable = false
 			};
 			var tmp3 = new TempDataType()
 			{

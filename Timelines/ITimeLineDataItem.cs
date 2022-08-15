@@ -40,5 +40,6 @@ namespace TimeLines
 	{
 		TimeSpan? StartTime { get; set; }
 		TimeSpan? EndTime { get; set; }
+        bool? bResizable { get; set; }
 	}
 }

@@ -130,6 +130,17 @@ namespace TimeLines
 									new PropertyChangedCallback(OnTimeValueChanged)));
 
 		#endregion
+
+		#region CanModifyTimeRange
+		public bool CanModifyTimeRange
+		{
+			get { return (bool)GetValue(CanModifyTimeRangeProperty); }
+			set { SetValue(CanModifyTimeRangeProperty, value); }
+		}
+		public static readonly DependencyProperty CanModifyTimeRangeProperty =
+			DependencyProperty.Register(nameof(CanModifyTimeRange), typeof(bool), typeof(TimeLineItemControl), new UIPropertyMetadata(true));
+
+		#endregion
 		public Double EditBorderThreshold
         {
             get { return (Double)GetValue(EditBorderThresholdProperty); }
@@ -251,10 +262,13 @@ namespace TimeLines
             Double borderThreshold = (Double)GetValue(EditBorderThresholdProperty);// 4;
 			Double unitsize = (Double)GetValue(UnitSizeProperty);
 			
-			if (X < borderThreshold)
-				return TimeLineAction.StretchStart;
-			if (X > Width - borderThreshold)
-				return TimeLineAction.StretchEnd;
+			if(CanModifyTimeRange)
+            {
+				if (X < borderThreshold)
+					return TimeLineAction.StretchStart;
+				if (X > Width - borderThreshold)
+					return TimeLineAction.StretchEnd;
+            }
 			return TimeLineAction.Move;
 			
 		}

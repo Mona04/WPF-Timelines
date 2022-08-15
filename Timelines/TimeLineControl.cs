@@ -561,6 +561,10 @@ namespace TimeLines
             Binding endBinding = new Binding("EndTime");
             endBinding.Mode = BindingMode.TwoWay;
             endBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+            Binding canResizableBinding = new Binding(nameof(ITimeLineData.bResizable));
+            canResizableBinding.Mode = BindingMode.TwoWay;
+            canResizableBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+
             TimeSpan timelineStart = StartTime;
 
             TimeLineItemControl adder = new TimeLineItemControl();
@@ -571,6 +575,7 @@ namespace TimeLines
 
             adder.SetBinding(TimeLineItemControl.StartTimeProperty, startBinding);
             adder.SetBinding(TimeLineItemControl.EndTimeProperty, endBinding);
+            adder.SetBinding(TimeLineItemControl.CanModifyTimeRangeProperty, canResizableBinding);
   
             if (ItemTemplateSelector != null)
             {
@@ -736,7 +741,6 @@ namespace TimeLines
             _dragObject = sender as TimeLineItemControl;
 
         }
-
         void item_PreviewDragButtonUp(object sender, MouseButtonEventArgs e)
         {
             _dragStartPosition.X = double.MinValue;
@@ -933,6 +937,7 @@ namespace TimeLines
 
             remover.PreviewMouseLeftButtonUp -= item_PreviewDragButtonUp;
             remover.PreviewMouseLeftButtonDown -= item_PreviewDragButtonDown;
+
             Items.Remove(curData);
             Children.Remove(remover);
         }
