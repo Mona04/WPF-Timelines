@@ -562,7 +562,7 @@ namespace TimeLines
             endBinding.Mode = BindingMode.TwoWay;
             endBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
             Binding canResizableBinding = new Binding(nameof(ITimeLineData.bResizable));
-            canResizableBinding.Mode = BindingMode.TwoWay;
+            canResizableBinding.Mode = BindingMode.OneWay;
             canResizableBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
 
             TimeSpan timelineStart = StartTime;

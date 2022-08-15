@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -215,16 +216,23 @@ namespace TimeLines
 				FindAllTimeLinesData_Recursive(child, ref res);
 		}
 
-		/// <summary>
-		/// It is depenent on the structure of treeviewitem described in Generic.xaml
-		/// </summary>
-		public static void SetTreeViewHeaderHeight(DependencyObject @this, double height)
+		public static ObservableCollection<TimeLinesDataBase> FindExpandedTimelineItems(ItemCollection items)
         {
-			if (VisualTreeHelper.GetChildrenCount(@this) == 0) 
-				return;
-			@this = VisualTreeHelper.GetChild(@this, 0);
-			Grid grid = VisualTreeHelper.GetChild(@this, 0) as Grid;
-			grid.RowDefinitions[0].Height = new GridLength(height);
+			ObservableCollection<TimeLinesDataBase> res = new ObservableCollection<TimeLinesDataBase>();
+			foreach (TimeLinesDataBase item in items)
+				FindExpandedTimelineItems_Recursive(item, ref res);
+			return res;
+		}
+		static void FindExpandedTimelineItems_Recursive(TimeLinesDataBase cur, ref ObservableCollection<TimeLinesDataBase> col)
+        {			
+			col.Add(cur);
+			foreach (var child in cur.Childs)
+            {
+				if (cur.IsExpanded)
+                {
+					FindExpandedTimelineItems_Recursive(child, ref col);
+                }
+            }
         }
 	}
 }

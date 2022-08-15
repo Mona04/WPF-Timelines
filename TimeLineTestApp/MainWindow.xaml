@@ -24,12 +24,12 @@
                                       MarkViewLevel="{x:Static tt:TimeLineViewLevel.Seconds}">
                             <tt:Timelines.ItemTemplate>
                                 <HierarchicalDataTemplate DataType="{x:Type local:TempDatas}" ItemsSource="{Binding Childs}">
-                                    <Grid>
+                                    <Grid Height="{Binding RelativeSource={RelativeSource AncestorType=tt:Timelines}, Path=RowHeight}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType=tt:Timelines}, Path=HeaderWidth}"/>
                                             <ColumnDefinition/>
                                         </Grid.ColumnDefinitions>
-                                        <Border Margin="10, 0, 0, 1">
+                                        <Border Margin="10, 0, 0, 1" >
                                             <TextBlock Grid.Column="0" FontSize="13" Padding="5" Text="{Binding ChannelName}"
                                                         Foreground="White" Background="#333333" HorizontalAlignment="Stretch"/>
                                         </Border>

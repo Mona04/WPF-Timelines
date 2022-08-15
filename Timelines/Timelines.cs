@@ -110,11 +110,7 @@ namespace TimeLines
             base.OnItemsSourceChanged(oldValue, newValue);
 
             CreateTimelineControls();
-
-            var dispatcherTimer = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Render);
-            dispatcherTimer.Tick += (s, ee) => { Redraw(); dispatcherTimer.Stop(); };
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 1);
-            dispatcherTimer.Start();
+            Redraw();
         }
         protected override void OnItemsChanged(NotifyCollectionChangedEventArgs e)
         {
@@ -128,23 +124,13 @@ namespace TimeLines
                 throw new Exception("Binded Item must be ItemLinesDataBase or derivation of it");
 
             CreateTimelineControls();
-
-            // Redraw() require Actual Width, so timer is need.
-
-            var dispatcherTimer = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Render);
-            dispatcherTimer.Tick += (s, ee) => { Redraw(); dispatcherTimer.Stop(); };
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 1);
-            dispatcherTimer.Start();
+            Redraw();
         }
         void OnTreeViewItem_Expanded(object sender, RoutedEventArgs e)
         {
             CreateTimelineControls();
 
-            // Redraw() require Actual Width, so timer is need.
-            var dispatcherTimer = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Render);
-            dispatcherTimer.Tick += (s, ee) => { Redraw(); dispatcherTimer.Stop(); };
-            dispatcherTimer.Interval = new TimeSpan(0,0,0,0,0);
-            dispatcherTimer.Start();     
+            Redraw();
         }
         void CreateTimelineControls()
         {
@@ -548,12 +534,10 @@ namespace TimeLines
             DrawRulerAndVerticalGrids();
 
             double y = 0; int i = 0;        
-            foreach(TreeViewItem element in TimeLineUtils.FindTreeViewItems(this))
+            foreach(TimeLinesDataBase item in TimeLineUtils.FindExpandedTimelineItems(Items))
             {
                 TimeLineControl control = TimelineControls[i++];      
                 
-                TimeLineUtils.SetTreeViewHeaderHeight(element, RowHeight);
-
                 DrawColumnGrids(y + RowHeight); // wannto draw background line first
                 Canvas.SetTop(control, y);
 
@@ -569,7 +553,7 @@ namespace TimeLines
         private void DrawRulerAndVerticalGrids()
         {
             TimeSpan MinTimeRange = TimeLineUtils.ConvertDistanceToTime(MinimumUnitWidth, ViewLevel, UnitSize);
-            for (int i = 2, span = 5, every = 5; i < 12; i++)
+            for (int i = 2, span = 5, every = 5; i < 24; i++)
             {           
                 if (TimeLineUtils.ConvertToTime(span, ViewLevel) >= MinTimeRange)
                 {
