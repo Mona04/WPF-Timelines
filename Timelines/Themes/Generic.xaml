@@ -134,14 +134,14 @@
                                               VerticalAlignment="Stretch"
                                               x:Name="PART_LeftIndicator">
                             <ContentPresenter.Content>
-                                <Button Width="15" />
+                                <Button Width="5" />
                             </ContentPresenter.Content>
                         </ContentPresenter>
                         <ContentPresenter HorizontalAlignment="Right"
                                               VerticalAlignment="Stretch"
                                               x:Name="PART_RightIndicator">
                             <ContentPresenter.Content>
-                                <Button Width="15" />
+                                <Button Width="5" />
                             </ContentPresenter.Content>
                         </ContentPresenter>
                     </Grid>
