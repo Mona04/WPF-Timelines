@@ -218,13 +218,13 @@ namespace TimeLines
 		/// <summary>
 		/// It is depenent on the structure of treeviewitem described in Generic.xaml
 		/// </summary>
-		public static double GetTreeViewHeaderHeight(DependencyObject @this)
+		public static void SetTreeViewHeaderHeight(DependencyObject @this, double height)
         {
 			if (VisualTreeHelper.GetChildrenCount(@this) == 0) 
-				return 0;
+				return;
 			@this = VisualTreeHelper.GetChild(@this, 0);
 			Grid grid = VisualTreeHelper.GetChild(@this, 0) as Grid;
-			return grid.RowDefinitions[0].ActualHeight;
+			grid.RowDefinitions[0].Height = new GridLength(height);
         }
 	}
 }

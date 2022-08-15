@@ -122,8 +122,6 @@
 
     <Style TargetType="{x:Type tt:TimeLineItemControl}">
         <Setter Property="EditBorderThreshold" Value="15"/>
-        <Setter Property="Height" Value="50"/>
-        <Setter Property="Width" Value="1000"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type tt:TimeLineItemControl}">
@@ -136,7 +134,7 @@
                                               VerticalAlignment="Stretch"
                                               x:Name="PART_LeftIndicator">
                             <ContentPresenter.Content>
-                                <Button Width="30" Height="50" Background="Red"/>
+                                <Button Width="15" />
                             </ContentPresenter.Content>
                         </ContentPresenter>
                         <ContentPresenter HorizontalAlignment="Right"
@@ -189,8 +187,8 @@
                                     <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType=tt:Timelines}, Path=HeaderWidth}"/>
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <ItemsPresenter x:Name="PART_ItemsPresenter"/>
-                                <ScrollViewer x:Name="PART_CanvasScrollViewer"  Grid.Column="1"
+                                <ItemsPresenter x:Name="PART_ItemsPresenter" VerticalAlignment="Top"/>
+                                <ScrollViewer x:Name="PART_CanvasScrollViewer"  Grid.Column="1" VerticalAlignment="Top"
                                               HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
                                     <Canvas x:Name="PART_Canvas" Background="{Binding RelativeSource={RelativeSource AncestorType=tt:Timelines}, Path=InternalFillBrush}" />
                                 </ScrollViewer>

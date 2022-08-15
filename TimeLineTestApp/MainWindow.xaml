@@ -12,17 +12,19 @@
     <StackPanel VerticalAlignment="Stretch" Orientation="Vertical">
         <GroupBox Header="Timelines">
             <StackPanel Orientation="Vertical">
-                <TextBlock Text="Right click and drag to edit items.  Left Edge - moves start time.  Right Edge - moves end time." />
+                <TextBlock Text="Left click and drag to edit items.  Left Edge - moves start time.  Right Edge - moves end time." />
                 <TextBlock Text="If you are moving the scene you will push other scenes when you run into them." />
-                <TextBlock Text="You can drag and drop with left click to change order or move from one timeline to the next." />
+                <TextBlock Text="You can drag and drop with (left click + ctrl) to change order or move from one timeline to the next." />
                 <TextBlock Text="If you are want to magnify/reduce time unit then wheel your mouse while pressing left ctrl" />
                 <GroupBox Header="Timelines Example">
                     <StackPanel>
-                        <tt:Timelines x:Name="Timelines" Height="150" CurrentTime="00:00:01" 
+                        <tt:Timelines x:Name="Timelines" Height="150" 
+                                      RowHeight="30" HeaderWidth="150" RulerHeight="20"
+                                      CurrentTime="00:00:01"                                      
                                       MarkViewLevel="{x:Static tt:TimeLineViewLevel.Seconds}">
                             <tt:Timelines.ItemTemplate>
                                 <HierarchicalDataTemplate DataType="{x:Type local:TempDatas}" ItemsSource="{Binding Childs}">
-                                    <Grid >
+                                    <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType=tt:Timelines}, Path=HeaderWidth}"/>
                                             <ColumnDefinition/>
@@ -65,6 +67,7 @@
                 <Slider x:Name="Slider_Scale" Minimum="0.1" Maximum="1300" ValueChanged="Slider_Scale_ValueChanged"/>
                 <TextBlock Text="{Binding ElementName=Slider_Scale,Path=Value}"/>
                 <Button Content="Source Change" Click="Button_Click"/>
+                <TextBlock Text="{Binding ElementName=Timelines, Path=TimeOnMouse}"/>
             </StackPanel>
         </GroupBox>
     </StackPanel>

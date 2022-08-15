@@ -42,7 +42,28 @@ namespace TimeLineTestApp
 		{
 			InitializeComponent();
 
-			Source();
+			var tmp1 = new TempDataType()
+			{
+				StartTime = TimeSpan.FromMilliseconds(1),
+				EndTime = TimeSpan.FromMilliseconds(2),
+			};
+			var tmp3 = new TempDataType()
+			{
+				StartTime = TimeSpan.FromMilliseconds(2),
+				EndTime = TimeSpan.FromMilliseconds(3),
+			};
+
+			var TimeLinesDatas = new ObservableCollection<TempDatas>();
+			TimeLinesDatas.Add(new TempDatas());
+			TimeLinesDatas[0].Childs.Add(new TempDatas());
+			TimeLinesDatas.Add(new TempDatas());
+			TimeLinesDatas[0].ChannelName = "Transform";
+			(TimeLinesDatas[0].Childs[0] as TempDatas).ChannelName = "Scale";
+			TimeLinesDatas[1].ChannelName = "Notifies";
+			TimeLinesDatas[0].Childs[0].Datas.Add(tmp1);
+			TimeLinesDatas[1].Datas.Add(tmp3);
+
+			Timelines.ItemsSource = TimeLinesDatas;
 		}
 
         private void Slider_Scale_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -75,8 +96,7 @@ namespace TimeLineTestApp
 			datas[4].Datas.Add(new TempDataType()); datas[4].ChannelName = "Tests";
 			datas[5].Datas.Add(new TempDataType()); datas[5].ChannelName = "Tests";
 
-			if(Timelines.ItemsSource == null)
-				Timelines.ItemsSource = datas;
+			Timelines.ItemsSource = datas;
 		}
     }
     class TempDataTemplateSeletor : DataTemplateSelector

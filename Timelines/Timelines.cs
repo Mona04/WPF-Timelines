@@ -92,6 +92,7 @@ namespace TimeLines
             PART_Ruler.MouseDown += RulerClicked;
             PART_Ruler.MouseMove += RulerClicked;
 
+            PART_Canvas.PreviewMouseMove += Canvas_PreviewMouseMove;
             PreviewMouseWheel += ScrollViewer_PreviewMouseWheel;
             PART_HozitontalScroll.ValueChanged += ScrollViewer_HorizontalValueChanged;
 
@@ -109,7 +110,11 @@ namespace TimeLines
             base.OnItemsSourceChanged(oldValue, newValue);
 
             CreateTimelineControls();
-            Redraw();
+
+            var dispatcherTimer = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Render);
+            dispatcherTimer.Tick += (s, ee) => { Redraw(); dispatcherTimer.Stop(); };
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 1);
+            dispatcherTimer.Start();
         }
         protected override void OnItemsChanged(NotifyCollectionChangedEventArgs e)
         {
@@ -125,7 +130,8 @@ namespace TimeLines
             CreateTimelineControls();
 
             // Redraw() require Actual Width, so timer is need.
-            var dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+
+            var dispatcherTimer = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Render);
             dispatcherTimer.Tick += (s, ee) => { Redraw(); dispatcherTimer.Stop(); };
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 1);
             dispatcherTimer.Start();
@@ -133,8 +139,12 @@ namespace TimeLines
         void OnTreeViewItem_Expanded(object sender, RoutedEventArgs e)
         {
             CreateTimelineControls();
-            UpdateLayout();
-            Redraw();
+
+            // Redraw() require Actual Width, so timer is need.
+            var dispatcherTimer = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Render);
+            dispatcherTimer.Tick += (s, ee) => { Redraw(); dispatcherTimer.Stop(); };
+            dispatcherTimer.Interval = new TimeSpan(0,0,0,0,0);
+            dispatcherTimer.Start();     
         }
         void CreateTimelineControls()
         {
@@ -293,7 +303,19 @@ namespace TimeLines
             }
         }
         #endregion
-        
+
+        #region TimeOnMouse
+        public TimeSpan TimeOnMouse
+        {
+            get { return (TimeSpan)GetValue(TimeOnMouseProperty); }
+            set { SetValue(TimeOnMouseProperty, value); }
+        }
+
+        public static readonly DependencyProperty TimeOnMouseProperty =
+            DependencyProperty.Register(nameof(TimeOnMouse), typeof(TimeSpan), typeof(Timelines),
+            new UIPropertyMetadata(TimeSpan.FromSeconds(0)));
+        #endregion
+
         #endregion
 
         #region Control Property
@@ -367,6 +389,12 @@ namespace TimeLines
                 CurrentTime = TimeLineUtils.ConvertDistanceToTime(X, ViewLevel, UnitSize);
             }
         }
+        protected virtual void Canvas_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            Point point = e.GetPosition(PART_Canvas);
+            double X = point.X;
+            TimeOnMouse = TimeLineUtils.ConvertDistanceToTime(X, ViewLevel, UnitSize);            
+        }
 
         #region DrawCanvas
 
@@ -426,6 +454,19 @@ namespace TimeLines
         public static readonly DependencyProperty HeaderWidthProperty =
             DependencyProperty.Register(nameof(HeaderWidth), typeof(float), typeof(Timelines),
                         new UIPropertyMetadata(150.0f, new PropertyChangedCallback(OnBackgroundValueChanged)));
+        #endregion
+
+        #region Row Height
+        public float RowHeight
+        {
+            get { return (float)GetValue(RowHeightProperty); }
+            set { SetValue(RowHeightProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MinorUnitThickness.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty RowHeightProperty =
+            DependencyProperty.Register(nameof(RowHeight), typeof(float), typeof(Timelines),
+                        new UIPropertyMetadata(30.0f, new PropertyChangedCallback(OnBackgroundValueChanged)));
         #endregion
 
         #region RulerGrid brush
@@ -509,14 +550,16 @@ namespace TimeLines
             double y = 0; int i = 0;        
             foreach(TreeViewItem element in TimeLineUtils.FindTreeViewItems(this))
             {
-                double y2 = y + TimeLineUtils.GetTreeViewHeaderHeight(element);
-      
-                DrawColumnGrids(y2); // wannto draw background line first
-                TimeLineControl control = TimelineControls[i++];
+                TimeLineControl control = TimelineControls[i++];      
+                
+                TimeLineUtils.SetTreeViewHeaderHeight(element, RowHeight);
+
+                DrawColumnGrids(y + RowHeight); // wannto draw background line first
                 Canvas.SetTop(control, y);
+
                 PART_Canvas.Children.Add(control);
 
-                y = y2;
+                y += RowHeight;
             }
             PART_Canvas.Height = y;
             PART_ItemsPresenter.Height = y;
@@ -570,7 +613,7 @@ namespace TimeLines
                 }
                 else
                 {
-                    l.Y1 = RulerHeight *0.8;
+                    l.Y1 = RulerHeight * 0.8;
                 }
                 l.Stroke = RulerGridBrush;
                 grid.Children.Add(l);

@@ -580,8 +580,8 @@ namespace TimeLines
             /*adder.PreviewMouseLeftButtonDown += item_PreviewEditButtonDown;
             adder.MouseMove += item_MouseMove;
             adder.PreviewMouseLeftButtonUp += item_PreviewEditButtonUp;*/
-            adder.PreviewMouseRightButtonDown += item_PreviewEditButtonDown;
-            adder.PreviewMouseRightButtonUp += item_PreviewEditButtonUp;
+            adder.PreviewMouseLeftButtonUp += item_PreviewEditButtonUp;
+            adder.PreviewMouseLeftButtonDown += item_PreviewEditButtonDown;
             adder.MouseMove += item_MouseMove;
 
             adder.PreviewMouseLeftButtonUp += item_PreviewDragButtonUp;
@@ -1289,7 +1289,8 @@ namespace TimeLines
             if (ctrl == null)
                 return;
 
-            if (CanLineChange && Mouse.LeftButton == MouseButtonState.Pressed)
+            // Ctrl + LeftClick => Dragdrop
+            if (CanLineChange && Mouse.LeftButton == MouseButtonState.Pressed && Keyboard.IsKeyDown(Key.LeftCtrl))
             {
                 var position = Mouse.GetPosition(null);
                 if (Math.Abs(position.X - _dragStartPosition.X) > SystemParameters.MinimumHorizontalDragDistance ||
